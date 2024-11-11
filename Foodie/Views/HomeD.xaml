@@ -1,0 +1,205 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="Foodie.Views.HomeD"   
+             xmlns:syncf="http://schemas.syncfusion.com/maui/toolkit"
+             xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
+             xmlns:m="clr-namespace:UraniumUI.Icons.MaterialSymbols;assembly=UraniumUI.Icons.MaterialSymbols"
+             Title="HomeD"
+             xmlns:model="clr-namespace:Foodie.Models"
+             xmlns:vm="clr-namespace:Foodie"
+             xmlns:uranium="http://schemas.enisn-projects.io/dotnet/maui/uraniumui"
+             xmlns:material="http://schemas.enisn-projects.io/dotnet/maui/uraniumui/material"
+             x:DataType="vm:MealsViewModel"
+             x:Name="myPage">
+
+    <toolkit:DockLayout Margin="10,10">
+
+        <Border toolkit:DockLayout.DockPosition="Left" WidthRequest="800"
+                    StrokeThickness="0" >
+            <Border.GestureRecognizers>
+                <DropGestureRecognizer AllowDrop="True" x:Name="picDropReg"
+                        Drop="DropGestureRecognizer_Drop"/>
+
+            </Border.GestureRecognizers>
+            <HorizontalStackLayout Margin="10" Spacing="10">
+                <VerticalStackLayout WidthRequest="250">
+
+                    <material:TextField Title="Original Article Link" Text="{Binding SelectedMeal.OriginalArticleUrl}"/>
+                    <material:EditorField Text="{Binding SelectedMeal.Name}" Title="Enter Meal Name"/>
+
+
+                    <material:EditorField Title="Meal's Description" Text="{Binding SelectedMeal.Description}"/>
+                    <material:EditorField Title="Cooking Duration" Text="{Binding SelectedMeal.Duration}"/>
+                    <material:EditorField Title="Cooking Difficulty" Text="{Binding SelectedMeal.Difficulty}"/>
+
+
+                    <material:EditorField Title="Ingredients. Each on a new line" Text="{Binding MealIngredients}"
+                                    x:Name="CookingIngredientsEditor" WidthRequest="250"
+                                          HorizontalOptions="Start"/>
+
+
+                </VerticalStackLayout>
+                <VerticalStackLayout Spacing="10">
+                    <ScrollView>
+                        
+                        
+                    <material:EditorField Title="Cooking Steps" Text="{Binding MealSteps}"
+                                          WidthRequest="450" HeightRequest="560"/>
+                        </ScrollView>
+
+                        <Label Text="Tags"/>
+                    <syncf:SfChipGroup ItemsSource="{Binding SelectedMeal.Tags}"
+                                >
+                        <syncf:SfChipGroup.ItemTemplate>
+                            <DataTemplate x:DataType="model:TagModelView">
+                                <syncf:SfChip TextColor="Gray" Text="{Binding TagName}" />
+                            </DataTemplate>
+                        </syncf:SfChipGroup.ItemTemplate>
+                    </syncf:SfChipGroup>
+                    
+                    <material:EditorField Title="YouTube Links" Text="{Binding MealVideoLinks}"
+                                    HorizontalOptions="Start"  x:Name="MealVideoLinks" WidthRequest="370"/>
+
+                    <material:TextField Title="Similar Article Link" Text="{Binding SelectedMeal.SimilarArticlesUrl}"/>
+                    <Button Text="Save" Clicked="SaveButton_Clicked" Command="{Binding UpSertMealCommand}"/>
+
+                    <Button Text="Reset" 
+                            Clicked="ResetButton_Clicked"
+                            Command="{Binding ResetCommand}"/>
+                </VerticalStackLayout>
+            </HorizontalStackLayout>
+        </Border>
+
+        <!--<CollectionView ItemsSource="{Binding SelectedMeal.Ingredients}"
+                                >
+                <CollectionView.ItemsLayout>
+                    <GridItemsLayout Span="4" Orientation="Vertical"
+                                        VerticalItemSpacing="2" HorizontalItemSpacing="2"/>
+                </CollectionView.ItemsLayout>
+                <CollectionView.ItemTemplate>
+                    <DataTemplate x:DataType="model:IngredientModelView">
+                        <Border StrokeThickness="0.4"
+                                VerticalOptions="Start">
+                                
+                        <Label TextColor="Gray" VerticalOptions="Start"
+                                VerticalTextAlignment="Start">
+                            <Label.Text>
+                                <MultiBinding StringFormat="{} {0} {1} of {2}">
+                                    <Binding Path="Quantity"/>
+                                    <Binding Path="Unit"/>
+                                    <Binding Path="Name"/>
+                                </MultiBinding>
+                            </Label.Text>
+                            </Label>
+                        </Border>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>-->
+        <HorizontalStackLayout toolkit:DockLayout.DockPosition="None"
+                            Spacing="5">
+            <VerticalStackLayout>
+                <toolkit:AvatarView Text="Meal's Picture Should be here!" 
+                                ImageSource="{Binding SelectedMeal.ImageUrl}"
+                                x:Name="MealsPicture" BorderWidth="0" 
+HeightRequest="400" WidthRequest="400">
+                    <toolkit:AvatarView.GestureRecognizers>
+                        <DropGestureRecognizer AllowDrop="True" 
+                        Drop="DropGestureRecognizer_Drop"/>
+
+                    </toolkit:AvatarView.GestureRecognizers>
+                </toolkit:AvatarView>
+                <Button Text="Change Image"/>
+            </VerticalStackLayout>
+            <Grid >
+                <CollectionView ItemsSource="{Binding AllMeals}"
+            EmptyView="Empty" WidthRequest="250">
+                    <CollectionView.ItemsLayout>
+                        <GridItemsLayout Span="1" Orientation="Vertical"
+                                        />
+                    </CollectionView.ItemsLayout>
+                    <CollectionView.ItemTemplate>
+                        <DataTemplate x:DataType="model:MealModelView">
+                            <Grid HeightRequest="200">
+                                <Grid.GestureRecognizers>
+                                    <TapGestureRecognizer Tapped="ChangeMeal_Tapped"/>
+                                </Grid.GestureRecognizers>
+                                <toolkit:AvatarView ImageSource="{Binding ImageUrl}" WidthRequest="160"
+                                                HeightRequest="160" BorderWidth="0" Opacity="0.8" />
+                                <VerticalStackLayout VerticalOptions="End" BackgroundColor="Black">
+                                    <Label Text="{Binding Name}" 
+    VerticalOptions="End" Padding="10,0"/>
+                                    
+                                    <Label Text="{Binding Duration}" 
+    VerticalOptions="End" Padding="10,0"/>
+                                    
+                                </VerticalStackLayout>
+                                
+                            </Grid>
+                        </DataTemplate>
+                    </CollectionView.ItemTemplate>
+                </CollectionView>
+            </Grid>
+            <VerticalStackLayout Spacing="5">
+                <material:TextField x:Name="mealTag" Text="{Binding CurrentTagName}" Title="Tag"/>
+                <Button Text="Save Tag" Clicked="SaveButton_Clicked"
+                    Command="{Binding AddTagCommand}"/>
+                <syncf:SfChipGroup ItemsSource="{Binding AllTags}" 
+                                x:Name="TagsChipGroup" 
+                                ChipType="Filter" DisplayMemberPath="TagName" 
+                                SelectionChanged="SfChipGroup_SelectionChanged">
+                </syncf:SfChipGroup>
+            </VerticalStackLayout>
+
+
+            <VerticalStackLayout  VerticalOptions="Start"
+                                Spacing="5">
+                <toolkit:AvatarView HeightRequest="140" WidthRequest="140"
+                                    BorderWidth="0"
+                    ImageSource="{Binding SelectedMealImage }"/>
+                <Label Text="{Binding SelectedMeal.Name}"/>
+                <Label Text="{Binding SelectedMeal.Description}"/>
+                <Label Text="{Binding SelectedMeal.Duration}"/>
+                <Label Text="{Binding SelectedMeal.Difficulty}"/>
+                <Label Text="{Binding SelectedMeal.OriginalArticleUrl}"/>                
+                <syncf:SfChipGroup ItemsSource="{Binding SelectedMeal.Tags}"
+                                   DisplayMemberPath="TagName" ChipType="Action"/>
+                <CollectionView ItemsSource="{Binding SelectedMeal.Ingredients}"
+                                Header="Ingredients !" >
+                    <CollectionView.ItemTemplate>
+                        <DataTemplate x:DataType="model:IngredientModelView">
+                            <Label>
+                                <Label.Text>
+                                    <MultiBinding StringFormat="{} {0} {1} {2}">
+                                        <Binding Path="Quantity"/>
+                                        <Binding Path="Unit"/>
+                                        <Binding Path="Name"/>
+                                    </MultiBinding>
+                                </Label.Text>
+                            </Label>
+                        </DataTemplate>
+                    </CollectionView.ItemTemplate>
+                </CollectionView>
+                
+                <CollectionView ItemsSource="{Binding SelectedMeal.Steps}"
+                                Header="Step!">
+                    <CollectionView.ItemTemplate>
+                        <DataTemplate x:DataType="model:StepModelView">
+                            <HorizontalStackLayout Spacing="5">
+                                <Label Text="{Binding StepNumber}"/>
+                                <Label Text="{Binding StepDescription}"/>
+                            </HorizontalStackLayout>
+                        </DataTemplate>
+                    </CollectionView.ItemTemplate>
+                </CollectionView>
+                <!--<material:EditorField Title="Each on a new line" Text="{Binding MealIngredients}"
+                                    x:Name="CookingIngredientsEditor" WidthRequest="270"/>
+            <Button Text="Ingredients" 
+                    HeightRequest="40" VerticalOptions="Start"
+                    x:Name="SaveIngredientBtn" Clicked="SaveIngredientBtn_Clicked"/>-->
+
+            </VerticalStackLayout>
+        </HorizontalStackLayout>
+    </toolkit:DockLayout>
+
+</ContentPage>

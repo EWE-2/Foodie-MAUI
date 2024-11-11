@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="Foodie.Views.HomePage"   
+             xmlns:syncf="http://schemas.syncfusion.com/maui/toolkit"    
+             Title="HomePage"
+xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
+xmlns:m="clr-namespace:UraniumUI.Icons.MaterialSymbols;assembly=UraniumUI.Icons.MaterialSymbols"
+
+xmlns:model="clr-namespace:Foodie.Models"
+xmlns:vm="clr-namespace:Foodie"
+xmlns:uranium="http://schemas.enisn-projects.io/dotnet/maui/uraniumui"
+xmlns:material="http://schemas.enisn-projects.io/dotnet/maui/uraniumui/material"
+x:DataType="vm:MealsViewModel"
+x:Name="myPage">
+    <syncf:SfNavigationDrawer>
+        <syncf:SfNavigationDrawer.DrawerSettings>
+            <syncf:DrawerSettings EnableSwipeGesture="True" Transition="Push">
+                <syncf:DrawerSettings.DrawerHeaderView>
+                    <Label Text="Test"/>
+                </syncf:DrawerSettings.DrawerHeaderView>
+            </syncf:DrawerSettings>
+        </syncf:SfNavigationDrawer.DrawerSettings>
+        
+        <syncf:SfNavigationDrawer.ContentView>
+            <toolkit:DockLayout Margin="10">
+                <material:TextField toolkit:DockLayout.DockPosition="Top"
+                    Title="Search Meal Or Ingredient" >
+                    <material:TextField.Icon>
+                        <FontImageSource FontFamily="MaterialRounded" Glyph="{Static m:MaterialRounded.Search}"/>
+                    </material:TextField.Icon>
+                </material:TextField>
+                <CollectionView ItemsSource="{Binding AllMeals}" 
+                                toolkit:DockLayout.DockPosition="Top"
+        EmptyView="Empty" WidthRequest="250">
+                    <CollectionView.ItemsLayout>
+                        <GridItemsLayout Span="1" Orientation="Vertical"
+                                    />
+                    </CollectionView.ItemsLayout>
+                    <CollectionView.ItemTemplate>
+                        <DataTemplate x:DataType="model:MealModelView">
+                            <Grid HeightRequest="200">
+                                <Grid.GestureRecognizers>
+                                    <TapGestureRecognizer Tapped="ChangeMeal_Tapped"/>
+                                </Grid.GestureRecognizers>
+                                <toolkit:AvatarView ImageSource="{Binding ImageUrl}" WidthRequest="160"
+                                            HeightRequest="160" BorderWidth="0" Opacity="0.8" />
+                                <VerticalStackLayout VerticalOptions="End" BackgroundColor="Black">
+                                    <Label Text="{Binding Name}" 
+VerticalOptions="End" Padding="10,0"/>
+
+                                    <Label Text="{Binding Duration}" 
+VerticalOptions="End" Padding="10,0"/>
+
+                                </VerticalStackLayout>
+
+                            </Grid>
+                        </DataTemplate>
+                    </CollectionView.ItemTemplate>
+                </CollectionView>
+            </toolkit:DockLayout>
+        </syncf:SfNavigationDrawer.ContentView>
+        
+    </syncf:SfNavigationDrawer>
+</ContentPage>
