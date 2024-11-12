@@ -11,11 +11,11 @@ public static class DataBaseService
     {
         string dbPath = string.Empty;
 
-#if ANDROID
-        dbPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData) + @"\FFoodie");
-#elif WINDOWS
-        dbPath = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments) + @"\FFoodie";
-#endif
+//#if ANDROID
+        dbPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.CommonDocuments) + @"\FFoodie");
+//#elif WINDOWS
+//        dbPath = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments) + @"\FFoodie";
+//#endif
         
         if (!Directory.Exists(dbPath))
         {

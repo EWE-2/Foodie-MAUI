@@ -1,3 +1,4 @@
+using DevExpress.Maui.Editors;
 using Syncfusion.Maui.Toolkit.Chips;
 
 namespace Foodie.Views;
@@ -19,7 +20,18 @@ public partial class SingleMeal : ContentPage
         base.OnAppearing();
         await ViewModel.GetImage();
         ViewModel.CurrentPage = PageEnum.SingleMealPage;
-        FavsChipGroup.SelectedItem = UnFavChip;
+
+        switch (ViewModel.SelectedMeal.IsFavorite)
+        {
+            case true:
+                IsFavToggleChip.SelectedIndex = 0;
+                break;
+            case false:
+                IsFavToggleChip.SelectedIndex = 1;
+                break;
+            default:
+                break;
+        }
     }
 
     private void ChangeMeal_Tapped(object sender, TappedEventArgs e)
@@ -44,30 +56,52 @@ public partial class SingleMeal : ContentPage
         }
     }
 
-    private void FavsChipGroup_SelectionChanged(object sender, Syncfusion.Maui.Toolkit.Chips.SelectionChangedEventArgs e)
+    private void UILayoutToggled_SelectionChanged(object sender, EventArgs e)
     {
-        bool isAdding;
-        if (e.AddedItem is not null)
+        var s = sender as ChoiceChipGroup;
+        switch (s.SelectedIndex)
         {
-            var addedChip = e.AddedItem as SfChip;
-            if (addedChip.FontSize == 14)//14 for fav 13 for non fav
-            {
+            case 0:
                 if (!ViewModel.CurrentUser.ListOfFavouriteMeals.Contains(ViewModel.SelectedMeal))
                 {
                     ViewModel.CurrentUser.ListOfFavouriteMeals.Add(ViewModel.SelectedMeal);
+                    ViewModel.SelectedMeal.IsFavorite = true;
                 }
-
-            }
-            else if (addedChip.FontSize == 13)
-            {
-                var removedItem = addedChip.BindingContext as MealModelView;
+                break;
+            case 1:
                 if (ViewModel.CurrentUser.ListOfFavouriteMeals.Contains(ViewModel.SelectedMeal))
                 {
                     ViewModel.CurrentUser.ListOfFavouriteMeals.Remove(ViewModel.SelectedMeal);
+                    ViewModel.SelectedMeal.IsFavorite = false;
                 }
+                break;
+            default:
+                break;
 
-            }
         }
+        ViewModel.UpdateUser();
     }
 
+    private async void StepsExpanderBtn_Clicked(object sender, EventArgs e)
+    {
+        StepsExpander.Commands.ToggleExpandState.Execute(null);
+        if (StepsExpander.IsExpanded)
+        {
+            double currentY = SingleMealScrollView.ScrollY;
+            await SingleMealScrollView.ScrollToAsync(0, currentY + 100, true);
+        }
+
+    }
+    private async void IngredientExpanderBtn_Clicked(object sender, EventArgs e)
+    {
+        IngredientsExpander.Commands.ToggleExpandState.Execute(null);
+        if (IngredientsExpander.IsExpanded)
+        {
+            double currentY = SingleMealScrollView.ScrollY;
+            await SingleMealScrollView.ScrollToAsync(0, currentY + 100, true);
+        }
+        //double currentY = SingleMealScrollView.ScrollY;
+        //await SingleMealScrollView.ScrollToAsync(0, currentY + 50, true);
+
+    }
 }

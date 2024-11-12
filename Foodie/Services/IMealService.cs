@@ -43,17 +43,16 @@ public class  MealService : IMealService
             AllMeals?.Clear();
             var realmMeals = db.All<MealModel>().ToList();
 
-            if (realmMeals.Count < 1)
-            {
-                await SyncData();
-                return;
-            }
+            GetUserSetup();
+
+            await SyncData();
+            return;
+
             //var Meals = db.All<MealModel>().ToList();
             List<MealModelView>? meals = realmMeals.Select(m => new MealModelView(m)).ToList();
             AllMeals = meals;
             GetTagsSetUp();
             RefreshComplete?.Invoke(true);
-            GetUserSetup();
         }
         catch (Exception ex)
         {
@@ -103,6 +102,7 @@ public class  MealService : IMealService
 
         db.Write(() =>
         {
+            db.RemoveAll<MealModel>();
             foreach (var meal in officialMeals)
             {
                 Debug.WriteLine(meal.ImageUrl);
@@ -121,8 +121,7 @@ public class  MealService : IMealService
             foreach (var tag in officialTags)
             {
                 var newTag = new TagModel(tag);
-                db.Add(newTag);
-                
+                db.Add(newTag);                
             }
         });
 

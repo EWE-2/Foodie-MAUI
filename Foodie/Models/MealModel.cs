@@ -35,6 +35,8 @@ public class MealModel: RealmObject
         Steps = new List<StepModel>(source.Steps.Select(s => new StepModel(s)));
         Tags = new List<string>(source.Tags.Select(s => s.TagName));
         VideoLinks = new List<string>(source.VideoLinks);
+        OriginalArticleUrl = source.OriginalArticleUrl;
+        SimilarArticlesUrl = source.SimilarArticlesUrl;
     }
     public MealModel(MealModel source)
     {
@@ -49,6 +51,8 @@ public class MealModel: RealmObject
         Steps = new List<StepModel>(source.Steps.Select(s => new StepModel(s)));
         Tags = new List<string>(source.Tags.Select(s => s));
         VideoLinks = new List<string>(source.VideoLinks);
+        OriginalArticleUrl = source.OriginalArticleUrl;
+        SimilarArticlesUrl = source.SimilarArticlesUrl;
     }
     public MealModel(MealModelView source, ObjectId id)
     {
@@ -63,6 +67,8 @@ public class MealModel: RealmObject
         Steps = new List<StepModel>(source.Steps.Select(s => new StepModel(s)));
         Tags = new List<string>(source.Tags.Select(s => s.TagName));
         VideoLinks = new List<string>(source.VideoLinks);
+        OriginalArticleUrl = source.OriginalArticleUrl;
+        SimilarArticlesUrl = source.SimilarArticlesUrl;
     }
     public MealModel()
     {
@@ -128,6 +134,8 @@ public partial class MealModelView : ObservableObject
         Steps = new ObservableCollection<StepModelView>(source.Steps.Select(s => new StepModelView(s)));
         Tags = new ObservableCollection<TagModelView>(source.Tags.Select(t => new TagModelView(t)));
         VideoLinks = new ObservableCollection<string>(source.VideoLinks);
+        OriginalArticleUrl = source.OriginalArticleUrl;
+        SimilarArticlesUrl = source.SimilarArticlesUrl;
     }
 
     // Default Constructor

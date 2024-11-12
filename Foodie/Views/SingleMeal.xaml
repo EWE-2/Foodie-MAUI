@@ -1,26 +1,30 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-             x:Class="Foodie.Views.SingleMeal"
-             xmlns:syncf="http://schemas.syncfusion.com/maui/toolkit"   
-xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
-xmlns:m="clr-namespace:UraniumUI.Icons.MaterialSymbols;assembly=UraniumUI.Icons.MaterialSymbols"
-Shell.BackgroundColor="Black"
-xmlns:model="clr-namespace:Foodie.Models"
-xmlns:vm="clr-namespace:Foodie"
-xmlns:uranium="http://schemas.enisn-projects.io/dotnet/maui/uraniumui"
-xmlns:material="http://schemas.enisn-projects.io/dotnet/maui/uraniumui/material"
-x:DataType="vm:MealsViewModel"
-x:Name="myPage">
+            x:Class="Foodie.Views.SingleMeal"
+            xmlns:syncf="http://schemas.syncfusion.com/maui/toolkit"   
+            xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
+            xmlns:m="clr-namespace:UraniumUI.Icons.MaterialSymbols;assembly=UraniumUI.Icons.MaterialSymbols"
+            Shell.BackgroundColor="Black"
+            xmlns:model="clr-namespace:Foodie.Models"
+            xmlns:vm="clr-namespace:Foodie"
+            xmlns:uranium="http://schemas.enisn-projects.io/dotnet/maui/uraniumui"
+            xmlns:material="http://schemas.enisn-projects.io/dotnet/maui/uraniumui/material"
+            x:DataType="vm:MealsViewModel"
+            xmlns:dx="http://schemas.devexpress.com/maui"
+             xmlns:local="clr-namespace:Foodie.Views"
+             x:Name="myPage">
 
     <syncf:SfShimmer BackgroundColor="Black"
             Type="Shopping" VerticalOptions="Fill" IsActive="{Binding IsLoadingJustForlooks}">
         <syncf:SfShimmer.Content>
-            <ScrollView>
+            <ScrollView x:Name="SingleMealScrollView">
                 <toolkit:DockLayout Margin="20,0" >
                     <VerticalStackLayout toolkit:DockLayout.DockPosition="Top">
 
-                        <Image Source="{Binding SelectedMealImage}" />
+                        <toolkit:AvatarView ImageSource="{Binding SelectedMealImage}" 
+                                            CornerRadius="20" WidthRequest="350" HeightRequest="250"
+                                            BorderWidth="0"/>
                         <Label Text="{Binding SelectedMeal.Name}"
                                FontAttributes="Bold" 
                                FontSize="23" TextColor="DarkSlateBlue"
@@ -30,8 +34,8 @@ x:Name="myPage">
                             <HorizontalStackLayout >
                                 <Image >
                                     <Image.Source>
-                                        <FontImageSource 
-                                            Color="DarkOrange"
+                                        <FontImageSource Size="20"
+                                            Color="DarkSlateBlue"
                                             Glyph="{Static m:MaterialRounded.Timer}" 
                                             FontFamily="MaterialRounded"/>
                                     </Image.Source>
@@ -50,27 +54,26 @@ x:Name="myPage">
                             </syncf:SfChipGroup.ItemTemplate>
                         </syncf:SfChipGroup>
 
-                        <syncf:SfChipGroup ChipType="Choice" x:Name="FavsChipGroup"
-                                               SelectionIndicatorColor="DarkSlateBlue"
-                                               SelectionChanged="FavsChipGroup_SelectionChanged"
-                                               ChoiceMode="SingleOrNone" >
-                            <syncf:SfChip ShowIcon="True" WidthRequest="36" x:Name="FavChip"
-                                              SelectionIndicatorColor="DarkSlateBlue">
-                                    <syncf:SfChip.ImageSource>
-                                        <FontImageSource Glyph="{Static m:MaterialRounded.Favorite}" 
-                             FontFamily="MaterialRounded" />
-                                    </syncf:SfChip.ImageSource>
-                                </syncf:SfChip>
-                                <syncf:SfChip ShowIcon="True" FontSize="13" SelectionIndicatorColor="DarkSlateBlue"
-                                              WidthRequest="36" x:Name="UnFavChip">
-                                    <syncf:SfChip.ImageSource>
-                                        <FontImageSource 
-                                            Glyph="{Static m:MaterialRounded.Heart_broken}" 
-                             FontFamily="MaterialRounded" />
-                                    </syncf:SfChip.ImageSource>
-                                </syncf:SfChip>
-                            </syncf:SfChipGroup>
-
+                        <dx:ChoiceChipGroup ChipSelectedBackgroundColor="DarkSlateBlue"
+                                            SelectionChanged="UILayoutToggled_SelectionChanged" x:Name="IsFavToggleChip"
+                                            >
+                            <dx:Chip WidthRequest="26" 
+                                     CheckIconColor="DarkSlateBlue">
+                                
+                                <dx:Chip.Icon>
+                                    <FontImageSource Glyph="{Static m:MaterialRounded.Favorite}" 
+                                                     FontFamily="MaterialRounded" />
+                                </dx:Chip.Icon>
+                            </dx:Chip>
+                            <dx:Chip WidthRequest="26"
+                                     CheckIconColor="Gray">
+                                <dx:Chip.Icon>
+                                    <FontImageSource Glyph="{Static m:MaterialRounded.Heart_broken}" 
+                                                     FontFamily="MaterialRounded" />
+                                </dx:Chip.Icon>
+                            </dx:Chip>
+                        </dx:ChoiceChipGroup>
+                        
                         <HorizontalStackLayout>
                             <HorizontalStackLayout.GestureRecognizers>
                                 <TapGestureRecognizer Tapped="TapGestureRecognizer_Tapped"/>
@@ -86,51 +89,141 @@ x:Name="myPage">
                                    />
                         </HorizontalStackLayout>
 
-                        <Label Text="Ingredients" HorizontalOptions="Center"
-       FontSize="18" FontAttributes="Bold"/>
-                        <Grid RowDefinitions="Auto,Auto,Auto">
-                            <CollectionView ItemsSource="{Binding SelectedMeal.Ingredients}"
-     Grid.Row="0">
-                                <CollectionView.ItemTemplate>
-                                    <DataTemplate x:DataType="model:IngredientModelView">
-                                        <VerticalStackLayout>
-                                            <Label>
-                                                <Label.Text>
-                                                    <MultiBinding StringFormat="{} - {2} {1} {0}">
-                                                        <Binding Path="Quantity"/>
-                                                        <Binding Path="Unit"/>
-                                                        <Binding Path="Name"/>
-                                                    </MultiBinding>
-                                                </Label.Text>
-                                            </Label>
-                                            <BoxView HeightRequest="0.3" Color="DarkSlateBlue" />
-                                        </VerticalStackLayout>
+                        
+                        
+                        <Grid RowDefinitions="Auto,Auto,Auto,Auto" RowSpacing="5">
 
-                                    </DataTemplate>
-                                </CollectionView.ItemTemplate>
-                            </CollectionView>
-                            <Label Text="Let's Cook !" HorizontalOptions="Center"
-       FontSize="24" FontAttributes="Bold" Grid.Row="1"/>
+                            <dx:DXButton Grid.Row="0" Content="Ingredients" 
+                                         HorizontalOptions="Center" ButtonType="Outlined"
+                                         BorderColor="DarkSlateBlue" Clicked="IngredientExpanderBtn_Clicked" 
+                                         x:Name="IngredientExpanderBtn" FontSize="24" 
+                                         FontAttributes="Bold" />
+                            <dx:DXExpander IsExpanded="False" Grid.Row="2"
+                                            x:Name="IngredientsExpander"
+                                           VerticalExpandMode="FromStartToEnd" HorizontalExpandMode="FromStartToEnd">
+                                <dx:DXCollectionView ItemsSource="{Binding SelectedMeal.Ingredients}"
+                                                     >
+                                    <dx:DXCollectionView.ItemTemplate>
+                                        <DataTemplate x:DataType="model:IngredientModelView">
+                                            <VerticalStackLayout>
+                                                <Label>
+                                                    <Label.Text>
+                                                        <MultiBinding StringFormat="{} - {2} {1} {0}">
+                                                            <Binding Path="Quantity"/>
+                                                            <Binding Path="Unit"/>
+                                                            <Binding Path="Name"/>
+                                                        </MultiBinding>
+                                                    </Label.Text>
+                                                </Label>
+                                                <BoxView HeightRequest="0.3" Color="DarkSlateBlue" />
+                                            </VerticalStackLayout>
 
-                            <CollectionView ItemsSource="{Binding SelectedMeal.Steps}"
-      Grid.Row="2">
-                                <CollectionView.ItemTemplate>
-                                    <DataTemplate x:DataType="model:StepModelView">
-                                        <VerticalStackLayout>
-                                            
-                                        <HorizontalStackLayout Spacing="5" >
-                                            <Label Text="{Binding StepNumber, StringFormat= '{0} -'}"/>
-                                            <Label Text="{Binding StepDescription}" 
-                                                   LineBreakMode="WordWrap" WidthRequest="330"/>
-                                            </HorizontalStackLayout>
-                                            <BoxView HeightRequest="0.2" Color="CadetBlue" />
-                                        </VerticalStackLayout>
-                                    </DataTemplate>
-                                </CollectionView.ItemTemplate>
-                            </CollectionView>
+                                        </DataTemplate>
+                                    </dx:DXCollectionView.ItemTemplate>
+                                </dx:DXCollectionView>
+                            </dx:DXExpander>
+                            <dx:DXButton Grid.Row="2" HeightRequest="60"
+                                ButtonType="Outlined" Content="Let's Cook !" 
+                                         HorizontalOptions="Center" 
+                                         BorderColor="DarkSlateBlue" Clicked="StepsExpanderBtn_Clicked" x:Name="StepsExpanderBtn"
+                                         FontSize="24" FontAttributes="Bold" />
+                            <dx:DXExpander IsExpanded="False" Grid.Row="3"
+                                x:Name="StepsExpander"
+                                VerticalExpandMode="FromEndToStart" HorizontalExpandMode="FromEndToStart">
+                                <dx:DXStackLayout Orientation="Vertical">
+                                    
 
+                                <CollectionView ItemsSource="{Binding SelectedMeal.Steps}" x:Name="CookingSteps">
+
+                                    <CollectionView.Resources>
+                                        <ResourceDictionary>
+                                            <Style TargetType="Label">
+                                                <Setter Property="FontSize" Value="{Binding CookingStepsFontSize}"/>
+                                            </Style>
+                                        </ResourceDictionary>
+                                    </CollectionView.Resources>
+                                    <CollectionView.ItemTemplate>
+                                        <DataTemplate x:DataType="model:StepModelView">
+                                            <VerticalStackLayout>
+
+                                                <HorizontalStackLayout Spacing="5" >
+                                                    <Label Text="{Binding StepNumber, StringFormat= '{0} -'}"/>
+                                                    <Label Text="{Binding StepDescription}" 
+                                                           LineBreakMode="WordWrap" WidthRequest="330"/>
+                                                </HorizontalStackLayout>
+                                                <BoxView HeightRequest="0.2" Color="CadetBlue" />
+                                            </VerticalStackLayout>
+                                        </DataTemplate>
+                                    </CollectionView.ItemTemplate>
+                                </CollectionView>
+
+                                <dx:DXButton Content="Cook With Foodie!" ButtonType="Outlined" TextColor="White"
+               BorderColor="DarkSlateBlue" 
+               x:Name="CookWithFoodieBtn" Command="{Binding Commands.Show,Source={x:Reference CookWithFoodieExpander}}"/>
+
+                                </dx:DXStackLayout>                            
+                            </dx:DXExpander>
+
+
+                            <dx:BottomSheet IsVisible="False" x:Name="CookWithFoodieExpander">
+
+                                <dx:DXStackLayout Orientation="Vertical" ItemSpacing="5">
+
+                                    <dx:DXCollectionView ItemsSource="{Binding SelectedMeal.Ingredients}"
+                                                     HeightRequest="350">
+                                        <dx:DXCollectionView.ItemTemplate>
+                                            <DataTemplate x:DataType="model:IngredientModelView">
+                                                <VerticalStackLayout>
+                                                    <Label>
+                                                        <Label.Text>
+                                                            <MultiBinding StringFormat="{} - {2} {1} {0}">
+                                                                <Binding Path="Quantity"/>
+                                                                <Binding Path="Unit"/>
+                                                                <Binding Path="Name"/>
+                                                            </MultiBinding>
+                                                        </Label.Text>
+                                                    </Label>
+                                                    <BoxView HeightRequest="0.3" Color="DarkSlateBlue" />
+                                                </VerticalStackLayout>
+
+                                            </DataTemplate>
+                                        </dx:DXCollectionView.ItemTemplate>
+                                    </dx:DXCollectionView>
+
+                                    <dx:DXCollectionView ItemsSource="{Binding SelectedMeal.Steps}" x:Name="CookingStepsBtmSheet">
+
+                                        <dx:DXCollectionView.Resources>
+                                            <ResourceDictionary>
+                                                <Style TargetType="Label">
+                                                    <Setter Property="FontSize" Value="{Binding CookingStepsFontSize}"/>
+                                                </Style>
+                                            </ResourceDictionary>
+                                        </dx:DXCollectionView.Resources>
+                                        <dx:DXCollectionView.ItemTemplate>
+                                            <DataTemplate x:DataType="model:StepModelView">
+                                                <VerticalStackLayout>
+
+                                                    <HorizontalStackLayout Spacing="5" >
+                                                        <Label Text="{Binding StepNumber, StringFormat= '{0} -'}"/>
+                                                        <Label Text="{Binding StepDescription}" 
+                                                           LineBreakMode="WordWrap" WidthRequest="330"/>
+                                                    </HorizontalStackLayout>
+                                                    <BoxView HeightRequest="0.2" Color="CadetBlue" />
+                                                </VerticalStackLayout>
+                                            </DataTemplate>
+                                        </dx:DXCollectionView.ItemTemplate>
+                                    </dx:DXCollectionView>
+
+                                </dx:DXStackLayout>
+
+                            </dx:BottomSheet>
+                            
+                            
                         </Grid>
-                        <Grid RowDefinitions="Auto,Auto">
+                            
+                            
+                            
+                        <Grid RowDefinitions="Auto,Auto" >
                             <Label Text="Explore More !" Grid.Row="0" HorizontalOptions="Center"
                HorizontalTextAlignment="Center"/>
                             <CollectionView ItemsSource="{Binding AnyRandomFourMeals}" 
@@ -154,12 +247,13 @@ x:Name="myPage">
                                         Opacity="0.8" 
                                         WidthRequest="{Binding WidthRequest,Source={x:Reference MealBorder}}"
                                         HeightRequest="{Binding HeightRequest,Source={x:Reference MealBorder}}"/>
-                                                <VerticalStackLayout VerticalOptions="End" BackgroundColor="Black">
-                                                    <Label Text="{Binding Name}" VerticalOptions="End" 
-                                       LineBreakMode="TailTruncation"
-                                       Padding="10,0"/>
+                                                <VerticalStackLayout VerticalOptions="End" BackgroundColor="Black"
+                                                                     Opacity="0.8">
+                                                    <Label Text="{Binding Name}" VerticalOptions="Center" LineBreakMode="TailTruncation" 
+                                                           Padding="10,0"/>
 
-                                                    <HorizontalStackLayout HorizontalOptions="Start"
+                                                    <HorizontalStackLayout HorizontalOptions="Start"  
+                                                                           
                                                    Padding="10,0">
                                                         <Image WidthRequest="15" HeightRequest="15">
                                                             <Image.Source>
@@ -167,7 +261,7 @@ x:Name="myPage">
                                                          FontFamily="MaterialRounded"/>
                                                             </Image.Source>
                                                         </Image>
-                                                        <Label Text="{Binding Duration}" VerticalOptions="End" />
+                                                        <Label Text="{Binding Duration}" VerticalOptions="Center" />
                                                     </HorizontalStackLayout>
 
                                                 </VerticalStackLayout>
@@ -177,7 +271,10 @@ x:Name="myPage">
                                     </DataTemplate>
                                 </CollectionView.ItemTemplate>
                             </CollectionView>
+                          
+
                         </Grid>
+                        
                     </VerticalStackLayout>
                 </toolkit:DockLayout>
 
