@@ -136,7 +136,7 @@ public partial class MealsViewModel : ObservableObject
             // Add the new item
             AllMeals.Add(meal);
         }
-
+        IsUpdatingImg = false;
         Reset();
     }
 
@@ -238,6 +238,7 @@ public partial class MealsViewModel : ObservableObject
     [RelayCommand]
     public async Task GetImage()
     {
+        IsUpdatingImg=true;
         if (SelectedMeal is null)
         {
             return;
@@ -345,6 +346,12 @@ public partial class MealsViewModel : ObservableObject
             GotResultInName = true;
             AllMeals = result.ToObservableCollection();
         }
+    }
+
+    [RelayCommand]
+    async Task ExportToJSON()
+    {
+       await MealService.ExportToJSONAsync();
     }
 }
 

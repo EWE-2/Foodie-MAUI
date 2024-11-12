@@ -32,9 +32,12 @@ public static class DataBaseService
         string databaseFileName = "FoodieDB.realm";
         string targetPath = Path.Combine(FileSystem.AppDataDirectory, databaseFileName);
         // Copy the file from the app package to the writable location
-        using var stream = await FileSystem.OpenAppPackageFileAsync(databaseFileName);
-        using var fileStream = new FileStream(targetPath, FileMode.Create, FileAccess.Write);
-        await stream.CopyToAsync(fileStream);
+        if (File.Exists(targetPath))
+        {
+            using var stream = await FileSystem.OpenAppPackageFileAsync(databaseFileName);
+            using var fileStream = new FileStream(targetPath, FileMode.Create, FileAccess.Write);
+            await stream.CopyToAsync(fileStream);
+        }
 
         return new RealmConfiguration(targetPath);
     }
