@@ -98,7 +98,7 @@
             </CollectionView>-->
         <HorizontalStackLayout toolkit:DockLayout.DockPosition="None"
                             Spacing="5">
-            <VerticalStackLayout>
+            <VerticalStackLayout Spacing="10" >
                 <toolkit:AvatarView Text="Meal's Picture Should be here!" 
                                 ImageSource="{Binding SelectedMeal.ImageUrl}"
                                 x:Name="MealsPicture" BorderWidth="0" 
@@ -109,7 +109,12 @@ HeightRequest="400" WidthRequest="400">
 
                     </toolkit:AvatarView.GestureRecognizers>
                 </toolkit:AvatarView>
-                <Button Text="Change Image"/>
+                <Label Text="{Binding SelectedMeal.ImageUrl}"/>
+                <material:TextField Title="Image Url Instead" 
+                                    Text="{Binding NewImageUrl}"/>
+                <Button Text="GetImage" Command="{Binding GetImageCommand}"/>
+                
+                <Button Text="Delete" Command="{Binding DeleteMealCommand}"/>
             </VerticalStackLayout>
             <Grid >
                 <CollectionView ItemsSource="{Binding AllMeals}"

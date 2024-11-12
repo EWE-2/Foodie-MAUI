@@ -13,48 +13,97 @@ xmlns:uranium="http://schemas.enisn-projects.io/dotnet/maui/uraniumui"
 xmlns:material="http://schemas.enisn-projects.io/dotnet/maui/uraniumui/material"
 x:DataType="vm:MealsViewModel"
 x:Name="myPage">
-    <syncf:SfNavigationDrawer>
+    <syncf:SfNavigationDrawer x:Name="NavDraw">
         <syncf:SfNavigationDrawer.DrawerSettings>
             <syncf:DrawerSettings EnableSwipeGesture="True" Transition="Push">
                 <syncf:DrawerSettings.DrawerHeaderView>
-                    <Label Text="Test"/>
+                    <VerticalStackLayout BackgroundColor="Black">
+                        <Label Text="Foodie!" VerticalOptions="Center" VerticalTextAlignment="Center"
+                               FontSize="26" FontAttributes="Bold"
+                               HorizontalOptions="Center" HorizontalTextAlignment="Center"/>
+                    </VerticalStackLayout>
                 </syncf:DrawerSettings.DrawerHeaderView>
+                <syncf:DrawerSettings.DrawerContentView>
+                    <VerticalStackLayout BackgroundColor="Black">
+                        <Button BackgroundColor="Transparent"
+                                Text="Favorites" TextColor="White"
+                                BorderWidth="1" x:Name="FavsButton" Clicked="FavsButton_Clicked">
+                            <Button.ImageSource>
+                                <FontImageSource FontFamily="MaterialRounded" Glyph="{Static m:MaterialRounded.Favorite}"/>
+                            </Button.ImageSource>
+                        </Button>
+                    </VerticalStackLayout>
+                    
+                </syncf:DrawerSettings.DrawerContentView>
             </syncf:DrawerSettings>
         </syncf:SfNavigationDrawer.DrawerSettings>
         
         <syncf:SfNavigationDrawer.ContentView>
-            <toolkit:DockLayout Margin="10">
-                <material:TextField toolkit:DockLayout.DockPosition="Top"
-                    Title="Search Meal Or Ingredient" >
+            <toolkit:DockLayout Margin="10" VerticalSpacing="5">
+                <HorizontalStackLayout toolkit:DockLayout.DockPosition="Top" HorizontalOptions="Center"
+                                       Spacing="10">
+                    <material:TextField Title="Search Meal Or Ingredient" Text="{Binding SearchText}" 
+                                    ClearButtonVisibility="WhileEditing" WidthRequest="250">
                     <material:TextField.Icon>
                         <FontImageSource FontFamily="MaterialRounded" Glyph="{Static m:MaterialRounded.Search}"/>
                     </material:TextField.Icon>
-                </material:TextField>
-                <CollectionView ItemsSource="{Binding AllMeals}" 
+                    </material:TextField>
+                    <Button WidthRequest="50" HeightRequest="40"
+                            Command="{Binding SearchMealCommand}"
+                            BackgroundColor="DarkSlateBlue">
+                        <Button.ImageSource>
+                            <FontImageSource Glyph="{Static m:MaterialRounded.Search}" 
+FontFamily="MaterialRounded" />
+                        </Button.ImageSource>
+                    </Button>
+                </HorizontalStackLayout>
+                
+                <syncf:SfChipGroup ItemsSource="{Binding AllTags}"
+                                   DisplayMemberPath="TagName"
+                                   ChipType="Action" ChipTextColor="White"
+                                   SelectionIndicatorColor="DarkSlateBlue">
+                    
+                </syncf:SfChipGroup>
+                <CollectionView ItemsSource="{Binding AllMeals}"
                                 toolkit:DockLayout.DockPosition="Top"
-        EmptyView="Empty" WidthRequest="250">
+                                EmptyView="No Meals So Far" Header="Latest Meals">
                     <CollectionView.ItemsLayout>
-                        <GridItemsLayout Span="1" Orientation="Vertical"
-                                    />
+                        <GridItemsLayout Span="2" Orientation="Vertical"
+                                   HorizontalItemSpacing="2" VerticalItemSpacing="2" />
                     </CollectionView.ItemsLayout>
                     <CollectionView.ItemTemplate>
                         <DataTemplate x:DataType="model:MealModelView">
-                            <Grid HeightRequest="200">
+                            
+                            <Border Stroke="DarkSlateBlue" StrokeThickness="0.6" 
+                                    StrokeShape="RoundRectangle 20" Padding="2"
+                                    x:Name="MealBorder">
+                               
+                                <Grid HeightRequest="200">
                                 <Grid.GestureRecognizers>
                                     <TapGestureRecognizer Tapped="ChangeMeal_Tapped"/>
                                 </Grid.GestureRecognizers>
-                                <toolkit:AvatarView ImageSource="{Binding ImageUrl}" WidthRequest="160"
-                                            HeightRequest="160" BorderWidth="0" Opacity="0.8" />
+                                <Image Source="{Binding ImageUrl}"
+                                                    Opacity="0.8" 
+                                                    WidthRequest="{Binding WidthRequest,Source={x:Reference MealBorder}}"
+                                                    HeightRequest="{Binding HeightRequest,Source={x:Reference MealBorder}}"/>
                                 <VerticalStackLayout VerticalOptions="End" BackgroundColor="Black">
-                                    <Label Text="{Binding Name}" 
-VerticalOptions="End" Padding="10,0"/>
+                                    <Label Text="{Binding Name}" VerticalOptions="End" Padding="10,0"/>
 
-                                    <Label Text="{Binding Duration}" 
-VerticalOptions="End" Padding="10,0"/>
+                                        <HorizontalStackLayout HorizontalOptions="Start"
+                                                               Padding="10,0">
+                                            <Image WidthRequest="15" HeightRequest="15">
+                                                <Image.Source>
+                                                    <FontImageSource Glyph="{Static m:MaterialRounded.Timer}" 
+                                                                     FontFamily="MaterialRounded"/>
+                                                </Image.Source>
+                                            </Image>
+                                            <Label Text="{Binding Duration}" VerticalOptions="End" />
+                                        </HorizontalStackLayout>
 
                                 </VerticalStackLayout>
 
-                            </Grid>
+                                </Grid>
+                            </Border>
                         </DataTemplate>
                     </CollectionView.ItemTemplate>
                 </CollectionView>

@@ -108,6 +108,11 @@ public partial class MealModelView : ObservableObject
     [ObservableProperty]
     ObservableCollection<string> videoLinks = new();
 
+    [ObservableProperty]
+    bool isFavorite;
+    [ObservableProperty]
+    bool isBookMarked;
+
     // Constructor for copying properties from an existing MealModel
     public MealModelView(MealModel source)
     {
@@ -209,7 +214,7 @@ public class TagModel: RealmObject
     }
     public TagModel(TagModel tag)
     {
-        Id = ObjectId.GenerateNewId();
+        Id = tag.Id;
         TagName = tag.TagName;
     }
 }
@@ -348,8 +353,7 @@ public static class IngredientModelViewExtensions
         return string.Join(Environment.NewLine, ingredients.Select(ingredient =>
             $"{ingredient.Quantity} {ingredient.Unit} {ingredient.Name}".Trim()));
     }
-
-    
+        
     public static string ToIngredientString(this IngredientModelView ingredient)
     {
         return $"{ingredient.Quantity} {ingredient.Unit} {ingredient.Name}".Trim();

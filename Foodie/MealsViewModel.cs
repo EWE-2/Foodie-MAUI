@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -10,6 +11,9 @@ using System.Threading.Tasks;
 namespace Foodie;
 public partial class MealsViewModel : ObservableObject
 {
+    public PageEnum CurrentPage = PageEnum.HomePage;
+    [ObservableProperty]
+    UserModelView currentUser;
 
     [ObservableProperty]
     ObservableCollection<MealModelView> allMeals =new();
@@ -33,14 +37,14 @@ public partial class MealsViewModel : ObservableObject
     public MealsViewModel(IMealService mealService)
     {
         MealService = mealService;
-        InitializeApp();        
+        InitializeApp();
+        MealService.RefreshComplete = (status) => InitializeApp();
+        
     }
 
     private void InitializeApp()
     {
-        MealService.GetMeals();
-        MealService.GetTags();
-
+        GetAnyRandomFourMeals();
         if (MealService.AllMeals is null || MealService.AllTags is null)
         {
             return;
@@ -48,26 +52,68 @@ public partial class MealsViewModel : ObservableObject
         
         AllMeals = MealService.AllMeals.ToObservableCollection();
         AllTags = MealService.AllTags.ToObservableCollection();
+        CurrentUser = MealService.CurrentUser;
+        GetAnyRandomFourMeals();
+
+    }
+
+    List<string> allMealsNames = new();
+    List<string> allTagsNames = new();
+    public void GearUpForSearch()
+    {
+        allMealsNames = AllMeals.Select(n => n.Name).ToList();
+        allTagsNames= AllTags.Select(n => n.TagName).ToList();
+    }
+
+    [ObservableProperty]
+    ObservableCollection<MealModelView> anyRandomFourMeals ;
+    [ObservableProperty]
+    ObservableCollection<MealModelView> moreMeals;
+    public void GetAnyRandomFourMeals()
+    {
+        if (MealService.AllMeals is null || MealService.AllTags is null)
+        {
+            return;
+        }
+
+        AnyRandomFourMeals ??= new();
+        AnyRandomFourMeals = AllMeals
+    .OrderBy(x => Guid.NewGuid()) // Randomly shuffles the items
+    .Take(4) // Takes any 4 random items
+    .ToObservableCollection();
+        
+    }
+    partial void OnAllMealsChanged(ObservableCollection<MealModelView>? oldValue, ObservableCollection<MealModelView> newValue)
+    {
+        Debug.WriteLine("changed");
     }
 
     [RelayCommand]
-    public async Task UpSertMeal()
+    public async Task UpSertMeal(MealModelView? meal=null)
     {
-        SelectedMeal.VideoLinks = mealVideoLinks.Split(new[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries).ToObservableCollection();
+        if (meal is null)
+        {
+            meal = SelectedMeal;
+            var existingMealIndexx = AllMeals.IndexOf(AllMeals.FirstOrDefault(x => x.Id == meal.Id));
+            if (existingMealIndexx != -1)
+            {
+                AllMeals[existingMealIndexx] = meal;
+            }
+        }
+        meal.VideoLinks = MealVideoLinks.Split(new[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries).ToObservableCollection();
         ProcessMealSteps();
 
         await ParseAndSaveIngredients();
-        MealService.UpdateMeal(SelectedMeal);
-        var existingMealIndex = AllMeals.IndexOf(AllMeals.FirstOrDefault(x => x.Id == SelectedMeal.Id));
+        MealService.UpdateMeal(meal);
+        var existingMealIndex = AllMeals.IndexOf(AllMeals.FirstOrDefault(x => x.Id == meal.Id));
         if (existingMealIndex != -1)
         {
-            // Replace the existing item with the updated one
-            AllMeals[existingMealIndex] = SelectedMeal;
+            AllMeals[existingMealIndex] = meal;
         }
         else
         {
             // Add the new item
-            AllMeals.Add(SelectedMeal);
+            AllMeals.Add(meal);
         }
 
         Reset();
@@ -166,4 +212,124 @@ public partial class MealsViewModel : ObservableObject
         MealService.DeleteTag(tag);
         CurrentTagName = string.Empty;
     }
+    [ObservableProperty]
+    string newImageUrl = string.Empty;
+    [RelayCommand]
+    public async Task GetImage()
+    {
+        if (SelectedMeal is null)
+        {
+            return;
+        }
+        //SelectedMeal.ImageUrl = await Utils.GetMealImagePath(SelectedMeal, NewImageUrl);
+        ////SelectedMealImage = NewImageUrl;
+        ////SelectedMeal.ImageUrl = NewImageUrl;
+        //await UpSertMeal(SelectedMeal);
+    }
+    [ObservableProperty]
+    int favStatusIndex =1;
+    [ObservableProperty]
+    bool isLoadingJustForlooks;
+    public void ViewSingleMeal()
+    {
+        if(CurrentUser.ListOfFavouriteMeals.Contains(SelectedMeal))
+        {
+            FavStatusIndex = 0;
+        }
+        if (CurrentPage == PageEnum.SingleMealPage)
+        {
+            return;
+        }
+        Shell.Current.GoToAsync(nameof(SingleMeal));
+    }
+    public async void AddToFavoriteMeal(MealModelView? meal)
+    {
+        if (meal is null )
+        {
+            meal = SelectedMeal;
+        }
+
+        CurrentUser.ListOfFavouriteMeals.Add(meal);
+        meal.IsFavorite = true;
+        await UpSertMeal(meal);
+        UpdateUser();
+    }
+    public async void RemoveFromFavoriteMeal(MealModelView? meal)
+    {
+        if (meal is null)
+        {
+            meal = SelectedMeal;
+        }
+
+        CurrentUser.ListOfFavouriteMeals.Remove(meal);
+        meal.IsFavorite = false;
+        await UpSertMeal(meal);
+        UpdateUser();
+    }
+    
+    public void AddToBlackListed(MealModelView? meal)
+    {
+        if (meal is null)
+        {
+            meal = SelectedMeal;
+        }
+
+        CurrentUser.ListOfBlackListedMeals.Add(meal);
+        
+        
+        UpdateUser();
+    }
+    public void RemoveFromBlackListed(MealModelView? meal)
+    {
+        if (meal is null)
+        {
+            meal = SelectedMeal;
+        }
+
+        CurrentUser.ListOfBlackListedMeals.Remove(meal);
+    }
+
+    public async void GoToFavoritesPage()
+    {
+        MealService.GetMeals();
+        AllMeals = MealService.AllMeals.ToObservableCollection();
+        await Shell.Current.GoToAsync(nameof(FavoriteMeals));
+    }
+
+    [RelayCommand]
+    public void UpdateUser()
+    {
+        MealService.UpSertUser(CurrentUser);
+    }
+
+    [ObservableProperty]
+    string searchText;
+    bool GotResultInName;
+
+    [RelayCommand]
+    public void SearchMeal(string searText)
+    {
+        var result = MealService.AllMeals
+    .Where(meal => !string.IsNullOrEmpty(meal.Name) && meal.Name.IndexOf(SearchText, StringComparison.OrdinalIgnoreCase) >= 0)
+    .ToList();
+
+        if (result.Count<1)
+        {
+            GotResultInName = false;
+            AllMeals = MealService.AllMeals.ToObservableCollection();
+            return; 
+        }
+        else
+        {
+            GotResultInName = true;
+            AllMeals = result.ToObservableCollection();
+        }
+    }
+}
+
+public enum PageEnum
+{
+    HomePage,
+    SearchPage,
+    SingleMealPage
 }

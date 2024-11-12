@@ -31,7 +31,7 @@ public partial class App : Application
         try
         {
             // Define the directory path
-            string directoryPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "DimmerCrashLogs");
+            string directoryPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "FoodieLogs");
 
             // Ensure the directory exists; if not, create it
             if (!Directory.Exists(directoryPath))

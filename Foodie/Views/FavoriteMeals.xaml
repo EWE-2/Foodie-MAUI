@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="Foodie.Views.FavoriteMeals"
+             Title="FavoriteMeals"
+             xmlns:syncf="http://schemas.syncfusion.com/maui/toolkit"   
+xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
+xmlns:m="clr-namespace:UraniumUI.Icons.MaterialSymbols;assembly=UraniumUI.Icons.MaterialSymbols"
+Shell.BackgroundColor="Black"
+xmlns:model="clr-namespace:Foodie.Models"
+xmlns:vm="clr-namespace:Foodie"
+xmlns:uranium="http://schemas.enisn-projects.io/dotnet/maui/uraniumui"
+xmlns:material="http://schemas.enisn-projects.io/dotnet/maui/uraniumui/material"
+x:DataType="vm:MealsViewModel"
+x:Name="myPage">
+    <toolkit:DockLayout>
+
+        <VerticalStackLayout toolkit:DockLayout.DockPosition="Top">
+            <Label Text="Favorite Meals" FontSize="Large" TextColor="White" 
+                   HorizontalOptions="Center" VerticalOptions="Center"/>
+            <CollectionView ItemsSource="{Binding CurrentUser.ListOfFavouriteMeals}"
+                toolkit:DockLayout.DockPosition="Top"
+                EmptyView="No Meals So Far" Header="Latest Meals">
+                <CollectionView.ItemsLayout>
+                    <GridItemsLayout Span="2" Orientation="Vertical"
+                   HorizontalItemSpacing="2" VerticalItemSpacing="2" />
+                </CollectionView.ItemsLayout>
+                <CollectionView.ItemTemplate>
+                    <DataTemplate x:DataType="model:MealModelView">
+
+                        <Border Stroke="DarkSlateBlue" StrokeThickness="0.6" 
+                    StrokeShape="RoundRectangle 20" Padding="2"
+                    x:Name="MealBorder">
+
+                            <Grid HeightRequest="200">
+                                <Grid.GestureRecognizers>
+                                    <TapGestureRecognizer Tapped="ChangeMeal_Tapped"/>
+                                </Grid.GestureRecognizers>
+                                <Image Source="{Binding ImageUrl}"
+                                    Opacity="0.8" 
+                                    WidthRequest="{Binding WidthRequest,Source={x:Reference MealBorder}}"
+                                    HeightRequest="{Binding HeightRequest,Source={x:Reference MealBorder}}"/>
+                                <VerticalStackLayout VerticalOptions="End" BackgroundColor="Black">
+                                    <Label Text="{Binding Name}" VerticalOptions="End" Padding="10,0"/>
+
+                                    <HorizontalStackLayout HorizontalOptions="Start"
+                                               Padding="10,0">
+                                        <Image WidthRequest="15" HeightRequest="15">
+                                            <Image.Source>
+                                                <FontImageSource Glyph="{Static m:MaterialRounded.Timer}" 
+                                                     FontFamily="MaterialRounded"/>
+                                            </Image.Source>
+                                        </Image>
+                                        <Label Text="{Binding Duration}" VerticalOptions="End" />
+                                    </HorizontalStackLayout>
+
+                                </VerticalStackLayout>
+
+                            </Grid>
+                        </Border>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>
+        </VerticalStackLayout>
+        
+    </toolkit:DockLayout>
+</ContentPage>

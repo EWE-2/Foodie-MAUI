@@ -12,7 +12,6 @@ public partial class HomeD : ContentPage
         InitializeComponent();
         ViewModel = viewModel;
         BindingContext = viewModel;
-        //viewW.Source = new Uri("https://www.youtube.com/watch?v=nYboXPsTRts&t=1711s");
     }
 
     public MealsViewModel ViewModel { get; }
@@ -90,5 +89,11 @@ public partial class HomeD : ContentPage
     private void ResetButton_Clicked(object sender, EventArgs e)
     {
         MealsPicture.ImageSource = null;
+    }
+
+    protected override void OnAppearing()
+    {
+        base.OnAppearing();
+        ViewModel.CurrentPage = PageEnum.HomePage;
     }
 }

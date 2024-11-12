@@ -33,9 +33,17 @@ public static class MauiProgram
 		builder.Logging.AddDebug();
 #endif
         builder.Services.AddSingleton<HomeD>();
+        
+        
         builder.Services.AddSingleton<HomePage>();
         builder.Services.AddSingleton<SearchPage>();
+        builder.Services.AddSingleton<SingleMeal>();
+        builder.Services.AddSingleton<FavoriteMeals>();
+        
+        
         builder.Services.AddSingleton<MealsViewModel>();
+
+
         builder.Services.AddSingleton<IMealService, MealService>();
         return builder.Build();
     }
