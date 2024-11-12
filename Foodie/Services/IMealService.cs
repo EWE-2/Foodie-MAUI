@@ -1,6 +1,8 @@
 ﻿
 
+using Newtonsoft.Json;
 using System.Diagnostics;
+using System.Text.Json;
 
 namespace Foodie.Services;
 public interface IMealService
@@ -20,6 +22,8 @@ public interface IMealService
     void UpdateTag(TagModelView tag);
     void DeleteTag(TagModelView tag);
     void GetTags();
+
+    Task ExportToJSONAsync();
 }
 
 
@@ -45,14 +49,19 @@ public class  MealService : IMealService
 
             GetUserSetup();
 
-            await SyncData();
+            await SyncData(); //commented for tests TODO:UNCOMMENT FOR RELEASE
             return;
-
-            //var Meals = db.All<MealModel>().ToList();
+            var Meals = db.All<MealModel>().ToList();
             List<MealModelView>? meals = realmMeals.Select(m => new MealModelView(m)).ToList();
             AllMeals = meals;
+            
             GetTagsSetUp();
             RefreshComplete?.Invoke(true);
+
+            
+            
+            return;
+
         }
         catch (Exception ex)
         {
@@ -89,77 +98,53 @@ public class  MealService : IMealService
     public Action<bool> RefreshComplete { get; set; } = (status) => {
         Console.WriteLine($"Refresh completed with status: {status}");
     };
-    private async Task SyncData()
+
+    public async Task SyncData()
     {
-        await DownloadDatabaseAsync();
-        var officialDb = Realm.GetInstance(await DataBaseService.GetOfficialRealm());
+        // Define URLs for the JSON files (replace these with actual URLs)
+        string mealsUrl = @"https://yb.ybdev.workers.dev/0:/Meals.json"; 
+        string tagsUrl = @"https://yb.ybdev.workers.dev/0:/Tags.json";
 
-        var officialMeals = officialDb.All<MealModel>().ToList();
-
-        var officialTags = officialDb.All<TagModel>().ToList();
-        AllMeals = officialMeals.Select(m => new MealModelView(m)).ToList();
-        AllTags = officialTags.Select(m => new TagModelView(m)).ToList();
-
-        db.Write(() =>
+        try
         {
-            db.RemoveAll<MealModel>();
-            foreach (var meal in officialMeals)
-            {
-                Debug.WriteLine(meal.ImageUrl);
-                var existingMeal = db.Find<MealModel>(meal.Id);
-                if (existingMeal is null)
-                {
-                    var newMeal = new MealModel(meal);
-                    db.Add(newMeal);
-                }
-                
-            }
-        });
-        db.Write(() =>
-        {
-            db.RemoveAll<TagModel>();
-            foreach (var tag in officialTags)
-            {
-                var newTag = new TagModel(tag);
-                db.Add(newTag);                
-            }
-        });
+            // Download and deserialize the Meals JSON file
+            var mealsList = await DownloadAndDeserializeJsonAsync<List<MealModelView>>(mealsUrl);
 
-        List<MealModelView>? meals = officialMeals.Select(m => new MealModelView(m)).ToList();
-        AllMeals = meals;
+            // Download and deserialize the Tags JSON file
+            var tagsList = await DownloadAndDeserializeJsonAsync<List<TagModelView>>(tagsUrl);
+            AllMeals = mealsList;
+            AllTags = tagsList;
+            // If successful, proceed with importing data (use mealsList and tagsList as needed)
+            ImportFromJson(mealsList, tagsList);
 
-        var tags = officialTags.Select(t => new TagModelView(t)).ToList();
-        AllTags = tags;
-        string databaseFileName = "FoodieDB.realm";
-        string targetPath = Path.Combine(FileSystem.AppDataDirectory, databaseFileName);
-
-        officialDb.Write(() =>
-        {
-            officialDb.RemoveAll<MealModel>();
-            officialDb.RemoveAll<TagModel>();
-        });
-
-        RefreshComplete?.Invoke(true);
-    }
-    async Task DownloadDatabaseAsync()
-    {
-        string databaseUrl = "https://github.com/YBTopaz8/Foodie/raw/master/db/FoodieDB.realm";
-        string databaseFileName = "FoodieDB.realm";
-        string targetPath = Path.Combine(FileSystem.AppDataDirectory, databaseFileName);
-
-        using HttpClient client = new HttpClient();
-        using var response = await client.GetAsync(databaseUrl);
-        response.EnsureSuccessStatusCode(); // Check if the response is successful
-
-
-        if (File.Exists(targetPath))
-        {
-            File.Delete(targetPath);
+            RefreshComplete?.Invoke(true);
+            return;
         }
-        using var stream = await response.Content.ReadAsStreamAsync();
-        using var fileStream = new FileStream(targetPath, FileMode.Create, FileAccess.Write);
-        await stream.CopyToAsync(fileStream);
+        catch (Exception ex)
+        {
+            //normally ex should be no files found, which is ok for dev, not not ok for user
+            Debug.WriteLine(ex.Message);
+            var officialDb = Realm.GetInstance(DataBaseService.GetRealm()
+
+            var officialMeals = officialDb.All<MealModel>().ToList();
+
+            var officialTags = officialDb.All<TagModel>().ToList();
+            AllMeals = officialMeals.Select(m => new MealModelView(m)).ToList();
+            AllTags = officialTags.Select(m => new TagModelView(m)).ToList();
+            RefreshComplete?.Invoke(true);
+            return;
+        }
+
     }
+    // Helper method to download JSON data directly into memory and deserialize
+    private async Task<T> DownloadAndDeserializeJsonAsync<T>(string url)
+    {
+        using HttpClient client = new HttpClient();
+        var response = await client.GetStringAsync(url);  // Download JSON data as a string
+
+        return JsonConvert.DeserializeObject<T>(response);
+    }
+
     public void DeleteMeal(MealModelView meal)
     {
         try
@@ -336,6 +321,55 @@ public class  MealService : IMealService
 
             throw;
         }
+    }
+    public async Task ExportToJSONAsync()
+    {
+        
+        var documentsPath = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData ) + @"\FFoodie";
+        if (!Directory.Exists(documentsPath))
+        {
+            Directory.CreateDirectory(documentsPath);
+        }
+        string mealsFilePath = Path.Combine(documentsPath, "Meals.json");
+        string tagsFilePath = Path.Combine(documentsPath, "Tags.json");
+
+        var mealsJson = JsonConvert.SerializeObject(AllMeals);
+        var tagsJson = JsonConvert.SerializeObject(AllTags);
+        
+
+        await File.WriteAllTextAsync(mealsFilePath, mealsJson);
+        await File.WriteAllTextAsync(tagsFilePath, tagsJson);
+        await   Shell.Current.DisplayAlert("Export", "Export complete!", "Ok");
+        Debug.WriteLine("Export complete!");
+    }
+    // Helper method to import data from the deserialized lists (if needed)
+    private void ImportFromJson(List<MealModelView> mealsList, List<TagModelView> tagsList)
+    {
+        // Process the deserialized data as needed, for example, saving it to Realm
+         db = Realm.GetInstance(DataBaseService.GetRealm());
+        
+        db.Write(() =>
+        {
+            db.RemoveAll<MealModel>();
+            db.RemoveAll<TagModel>();
+            foreach (var meal in AllMeals)
+            {
+                Debug.WriteLine(meal.ImageUrl);
+                var existingMeal = db.Find<MealModel>(meal.Id);
+                if (existingMeal is null)
+                {
+                    var newMeal = new MealModel(meal);
+                    db.Add(newMeal);
+                }
+            }
+
+            db.RemoveAll<TagModel>();
+            foreach (var tag in AllTags)
+            {
+                var newTag = new TagModel(tag);
+                db.Add(newTag);
+            }
+        });
     }
 
 

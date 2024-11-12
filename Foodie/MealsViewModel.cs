@@ -21,17 +21,17 @@ public partial class MealsViewModel : ObservableObject
 
     public PageEnum CurrentPage = PageEnum.HomePage;
     [ObservableProperty]
-    UserModelView currentUser;
+    UserModelView currentUser = new();
 
     [ObservableProperty]
     ObservableCollection<MealModelView> allMeals =new();
     [ObservableProperty]
     ObservableCollection<TagModelView> allTags =new();
-    
+
     [ObservableProperty]
-    TagModelView selectedTag=new();
+    TagModelView selectedTag;
     [ObservableProperty]
-    MealModelView selectedMeal=new();
+    MealModelView selectedMeal;
     [ObservableProperty]
     string mealSteps =string.Empty;
     [ObservableProperty]
@@ -74,7 +74,8 @@ public partial class MealsViewModel : ObservableObject
             CurrentUser.ListOfBlackListedMeals = new();
         }
         GetAnyRandomFourMeals();
-
+        SelectedMeal = null;
+        SelectedTag = null;
     }
 
     List<string> allMealsNames = new();
@@ -108,9 +109,17 @@ public partial class MealsViewModel : ObservableObject
         Debug.WriteLine("changed");
     }
 
+    [ObservableProperty]
+    bool isUpdatingImg = false;
     [RelayCommand]
     public async Task UpSertMeal(MealModelView? meal=null)
     {
+
+        if (IsUpdatingImg)
+        {
+            SelectedMeal.ImageUrl = NewImageUrl;
+        }
+
         if (meal is null)
         {
             meal = SelectedMeal;
@@ -124,6 +133,7 @@ public partial class MealsViewModel : ObservableObject
         ProcessMealSteps();
 
         await ParseAndSaveIngredients();
+
         MealService.UpdateMeal(meal);
         var existingMealIndex = AllMeals.IndexOf(AllMeals.FirstOrDefault(x => x.Id == meal.Id));
         if (existingMealIndex != -1)
@@ -135,7 +145,7 @@ public partial class MealsViewModel : ObservableObject
             // Add the new item
             AllMeals.Add(meal);
         }
-
+        IsUpdatingImg = false;
         Reset();
     }
 
@@ -237,6 +247,7 @@ public partial class MealsViewModel : ObservableObject
     [RelayCommand]
     public async Task GetImage()
     {
+        IsUpdatingImg=true;
         if (SelectedMeal is null)
         {
             return;
@@ -345,6 +356,12 @@ public partial class MealsViewModel : ObservableObject
     //        GotResultInName = true;
     //        AllMeals = result.ToObservableCollection();
     //    }
+    }
+
+    [RelayCommand]
+    async Task ExportToJSON()
+    {
+       await MealService.ExportToJSONAsync();
     }
 }
 

@@ -115,6 +115,7 @@ HeightRequest="400" WidthRequest="400">
                 <Button Text="GetImage" Command="{Binding GetImageCommand}"/>
                 
                 <Button Text="Delete" Command="{Binding DeleteMealCommand}"/>
+                <Button Text="Export" Command="{Binding ExportToJSONCommand}"/>
             </VerticalStackLayout>
             <Grid >
                 <CollectionView ItemsSource="{Binding AllMeals}"
