@@ -14,6 +14,10 @@ global using Foodie.Views;
 global using Microsoft.Extensions.Logging;
 global using Syncfusion.Maui.Toolkit.Hosting;
 global using System.Collections.ObjectModel;
+
+global using DevExpress.Maui;
+
+
 namespace Foodie;
 internal class GlobalUsings
 {

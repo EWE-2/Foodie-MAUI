@@ -57,9 +57,11 @@ public class  MealService : IMealService
             
             GetTagsSetUp();
             RefreshComplete?.Invoke(true);
+
             
             
             return;
+
         }
         catch (Exception ex)
         {
@@ -122,7 +124,7 @@ public class  MealService : IMealService
         {
             //normally ex should be no files found, which is ok for dev, not not ok for user
             Debug.WriteLine(ex.Message);
-            var officialDb = Realm.GetInstance(DataBaseService.GetRealm());
+            var officialDb = Realm.GetInstance(DataBaseService.GetRealm()
 
             var officialMeals = officialDb.All<MealModel>().ToList();
 

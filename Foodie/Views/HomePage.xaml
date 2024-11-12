@@ -4,6 +4,7 @@
              x:Class="Foodie.Views.HomePage"   
              xmlns:syncf="http://schemas.syncfusion.com/maui/toolkit"    
              Title="Foodie !😄"
+            xmlns:dx="http://schemas.devexpress.com/maui"
             xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
             xmlns:m="clr-namespace:UraniumUI.Icons.MaterialSymbols;assembly=UraniumUI.Icons.MaterialSymbols"
 
@@ -13,6 +14,49 @@
             xmlns:material="http://schemas.enisn-projects.io/dotnet/maui/uraniumui/material"
             x:DataType="vm:MealsViewModel"
             x:Name="myPage">
+
+    <ContentPage.Resources>
+        <DataTemplate x:Key="HomePageViewTemplate" x:DataType="model:MealModelView">
+
+            <Border Stroke="DarkSlateBlue" StrokeThickness="0.6" 
+            StrokeShape="RoundRectangle 20" Padding="2"
+            x:Name="MealBorder">
+
+                <Grid HeightRequest="200">
+                    <Image Source="{Binding ImageUrl}"
+                            Opacity="0.8" 
+                            WidthRequest="{Binding WidthRequest,Source={x:Reference MealBorder}}"
+                            HeightRequest="{Binding HeightRequest,Source={x:Reference MealBorder}}"/>
+                    <VerticalStackLayout VerticalOptions="End" BackgroundColor="Black">
+                        <Label Text="{Binding Name}" VerticalOptions="End" Padding="10,0"/>
+                        <FlexLayout JustifyContent="SpaceBetween">
+                            <HorizontalStackLayout HorizontalOptions="Start"
+                                       Padding="10,0">
+                                <Image WidthRequest="15" HeightRequest="15">
+                                    <Image.Source>
+                                        <FontImageSource Glyph="{Static m:MaterialRounded.Timer}" 
+                                             FontFamily="MaterialRounded"/>
+                                    </Image.Source>
+                                </Image>
+                                <Label Text="{Binding Duration}" VerticalOptions="End" />
+                            </HorizontalStackLayout>
+                            <HorizontalStackLayout>
+                                <ImageButton WidthRequest="15" HeightRequest="15" IsVisible="{Binding IsBookMarked}">
+                                    <ImageButton.Source>
+                                        <FontImageSource Glyph="{Static m:MaterialRounded.Bookmark}" 
+                 FontFamily="MaterialRounded"/>
+                                    </ImageButton.Source>
+                                </ImageButton>
+                            </HorizontalStackLayout>
+                            
+
+                        </FlexLayout>
+                    </VerticalStackLayout>
+
+                </Grid>
+            </Border>
+        </DataTemplate>
+    </ContentPage.Resources>
     <syncf:SfNavigationDrawer x:Name="NavDraw">
         <syncf:SfNavigationDrawer.DrawerSettings>
             <syncf:DrawerSettings EnableSwipeGesture="True" Transition="Push">
@@ -39,76 +83,75 @@
         </syncf:SfNavigationDrawer.DrawerSettings>
         
         <syncf:SfNavigationDrawer.ContentView>
-            <toolkit:DockLayout Margin="10" VerticalSpacing="5">
-                <HorizontalStackLayout toolkit:DockLayout.DockPosition="Top" HorizontalOptions="Center"
-                                       Spacing="10">
-                    <material:TextField Title="Search Meal Or Ingredient" Text="{Binding SearchText}" 
-                                    ClearButtonVisibility="WhileEditing" WidthRequest="250"
-                                        ReturnCommand="{Binding SearchMealCommand}">
-                    <material:TextField.Icon>
-                        <FontImageSource FontFamily="MaterialRounded" Glyph="{Static m:MaterialRounded.Search}"/>
-                    </material:TextField.Icon>
-                    </material:TextField>
-                    <Button WidthRequest="50" HeightRequest="40"
-                            Command="{Binding SearchMealCommand}"
-                            BackgroundColor="DarkSlateBlue">
-                        <Button.ImageSource>
-                            <FontImageSource Glyph="{Static m:MaterialRounded.Search}" 
-FontFamily="MaterialRounded" />
-                        </Button.ImageSource>
-                    </Button>
-                </HorizontalStackLayout>
+            <Grid RowDefinitions="*">                
+                <toolkit:DockLayout Margin="10" VerticalSpacing="5" Grid.Row="0">
+                    <HorizontalStackLayout toolkit:DockLayout.DockPosition="Top" HorizontalOptions="Center"
+                                           Spacing="10">
+                        <dx:TextEdit PlaceholderText="Search Meal Or Ingredient" CornerRadius="20"
+                                        ClearIconVisibility="Auto" WidthRequest="300"
+                                        x:Name="HomePaGeMealSearchBox" TextChanged="HomePaGeMealSearchBox_TextChanged"
+                                        ClearIconClicked="HomePaGeMealSearchBox_ClearIconClicked">
+                        <dx:TextEdit.StartIcon>
+                            <FontImageSource FontFamily="MaterialRounded" Glyph="{Static m:MaterialRounded.Search}"/>
+                        </dx:TextEdit.StartIcon>
+                        </dx:TextEdit>
+                        <Button WidthRequest="50" HeightRequest="40"
+                                Command="{Binding SearchMealCommand}"
+                                BackgroundColor="DarkSlateBlue">
+                            <Button.ImageSource>
+                                <FontImageSource Glyph="{Static m:MaterialRounded.Search}" 
+    FontFamily="MaterialRounded" />
+                            </Button.ImageSource>
+                        </Button>
+                    </HorizontalStackLayout>
                 
-                <syncf:SfChipGroup ItemsSource="{Binding AllTags}"
-                                   DisplayMemberPath="TagName"
-                                   ChipType="Action" ChipTextColor="White"
-                                   SelectionIndicatorColor="DarkSlateBlue">
+                    <syncf:SfChipGroup ItemsSource="{Binding AllTags}"
+                                       DisplayMemberPath="TagName" toolkit:DockLayout.DockPosition="Top"
+                                       ChipType="Action" ChipTextColor="White"
+                                       SelectionIndicatorColor="DarkSlateBlue">
                     
-                </syncf:SfChipGroup>
-                <CollectionView ItemsSource="{Binding AllMeals}"
-                                toolkit:DockLayout.DockPosition="Top"
-                                EmptyView="No Meals So Far" Header="Latest Meals">
-                    <CollectionView.ItemsLayout>
-                        <GridItemsLayout Span="2" Orientation="Vertical"
-                                   HorizontalItemSpacing="2" VerticalItemSpacing="2" />
-                    </CollectionView.ItemsLayout>
-                    <CollectionView.ItemTemplate>
-                        <DataTemplate x:DataType="model:MealModelView">
-                            
-                            <Border Stroke="DarkSlateBlue" StrokeThickness="0.6" 
-                                    StrokeShape="RoundRectangle 20" Padding="2"
-                                    x:Name="MealBorder">
-                               
-                                <Grid HeightRequest="200">
-                                <Grid.GestureRecognizers>
-                                    <TapGestureRecognizer Tapped="ChangeMeal_Tapped"/>
-                                </Grid.GestureRecognizers>
-                                <Image Source="{Binding ImageUrl}"
-                                                    Opacity="0.8" 
-                                                    WidthRequest="{Binding WidthRequest,Source={x:Reference MealBorder}}"
-                                                    HeightRequest="{Binding HeightRequest,Source={x:Reference MealBorder}}"/>
-                                <VerticalStackLayout VerticalOptions="End" BackgroundColor="Black">
-                                    <Label Text="{Binding Name}" VerticalOptions="End" Padding="10,0"/>
+                    </syncf:SfChipGroup>
+                    <dx:DXCollectionView ItemsSource="{Binding AllMeals}" ItemSpanCount="2"
+                                         toolkit:DockLayout.DockPosition="Top" x:Name="HomePageCV"
+                                         ItemTemplate="{StaticResource HomePageViewTemplate}"
+                                         TapConfirmed="HomePageCV_TapConfirmed"
+                                         LongPress="HomePageCV_LongPress"/>
 
-                                        <HorizontalStackLayout HorizontalOptions="Start"
-                                                               Padding="10,0">
-                                            <Image WidthRequest="15" HeightRequest="15">
-                                                <Image.Source>
-                                                    <FontImageSource Glyph="{Static m:MaterialRounded.Timer}" 
-                                                                     FontFamily="MaterialRounded"/>
-                                                </Image.Source>
-                                            </Image>
-                                            <Label Text="{Binding Duration}" VerticalOptions="End" />
-                                        </HorizontalStackLayout>
+                </toolkit:DockLayout>
 
-                                </VerticalStackLayout>
-
-                                </Grid>
-                            </Border>
-                        </DataTemplate>
-                    </CollectionView.ItemTemplate>
-                </CollectionView>
-            </toolkit:DockLayout>
+                <dx:BottomSheet x:Name="HomePageBtmSheet" AllowedState="HalfExpanded" 
+                                Grid.Row="0" IsVisible="False" IsModal="True" >
+                    <dx:DXStackLayout Orientation="Vertical" ItemSpacing="5" Margin="10,0">
+                        <Label Text="{Binding SelectedMeal.Name}" HorizontalOptions="Center"
+                               FontSize="25" FontAttributes="Bold" TextColor="White"/>
+                        <dx:DXToggleButton IsChecked="{Binding SelectedMeal.IsFavorite}" CheckedBackgroundColor="DarkSlateBlue"
+                                           x:Name="IsFavToggleBtn" IconHeight="35" IconWidth="35" TapPressed="IsFavToggleBtn_TapPressed"
+                                           CheckedChanged="IsFavToggleBtn_CheckedChanged" 
+                                           BackgroundColor="Gray" CheckedIconColor="Red" 
+                                           PressedBackgroundColor="DarkSlateBlue"
+                                           IconPlacement="Left">
+                            <dx:DXButton.Icon>
+                                <FontImageSource FontFamily="MaterialRounded"
+                                                 Glyph="{x:Static m:MaterialRounded.Favorite}" />
+                            </dx:DXButton.Icon>
+                        </dx:DXToggleButton>
+                        <dx:DXButton Clicked="NavToSingleMeal_Clicked" x:Name="NavToSingleMeal"
+                                           BackgroundColor="Gray" IconPlacement="Left" IconHeight="35" IconWidth="35" >
+                            <dx:DXButton.Icon>
+                                <FontImageSource FontFamily="MaterialRounded" Glyph="{x:Static m:MaterialRounded.Visibility}" />
+                            </dx:DXButton.Icon>
+                        </dx:DXButton>
+                        <dx:DXToggleButton IsChecked="{Binding BookmrkStatus}" CheckedBackgroundColor="DarkSlateBlue"
+                                           x:Name="IsbkmrkToggleBtn" IconHeight="35" IconWidth="35" 
+                                           CheckedChanged="IsbkmrkToggleBtn_CheckedChanged" 
+                                           BackgroundColor="Gray" CheckedIconColor="Orange" IconPlacement="Left">
+                            <dx:DXButton.Icon>
+                                <FontImageSource FontFamily="MaterialRounded" Glyph="{x:Static m:MaterialRounded.Bookmark}" />
+                            </dx:DXButton.Icon>
+                        </dx:DXToggleButton>
+                    </dx:DXStackLayout>
+                </dx:BottomSheet>
+            </Grid>
         </syncf:SfNavigationDrawer.ContentView>
         
     </syncf:SfNavigationDrawer>

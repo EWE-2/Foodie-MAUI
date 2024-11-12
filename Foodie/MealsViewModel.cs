@@ -11,6 +11,14 @@ using System.Threading.Tasks;
 namespace Foodie;
 public partial class MealsViewModel : ObservableObject
 {
+    [ObservableProperty]
+    int cookingStepsFontSize = 14;
+    [ObservableProperty]
+    int cookinIngredientFontSize = 14;
+    [ObservableProperty]
+    int cookingDescriptionFontSize = 14;
+
+
     public PageEnum CurrentPage = PageEnum.HomePage;
     [ObservableProperty]
     UserModelView currentUser = new();
@@ -53,15 +61,15 @@ public partial class MealsViewModel : ObservableObject
         AllMeals = MealService.AllMeals.ToObservableCollection();
         AllTags = MealService.AllTags.ToObservableCollection();
         CurrentUser = MealService.CurrentUser;
-        if (CurrentUser.ListOfFavouriteMeals is null)
+        if (CurrentUser.ListOfFavouriteMeals is null || CurrentUser.ListOfFavouriteMeals.Count <1)
         {
             CurrentUser.ListOfFavouriteMeals = new();
         }
-        if (CurrentUser.ListOfMeals is null)
+        if (CurrentUser.ListOfMeals is null || CurrentUser.ListOfMeals.Count < 1)
         {
             CurrentUser.ListOfMeals = new();
         }
-        if (CurrentUser.ListOfBlackListedMeals is null)
+        if (CurrentUser.ListOfBlackListedMeals is null || CurrentUser.ListOfBlackListedMeals.Count < 1)
         {
             CurrentUser.ListOfBlackListedMeals = new();
         }
@@ -250,14 +258,16 @@ public partial class MealsViewModel : ObservableObject
         //await UpSertMeal(SelectedMeal);
     }
     [ObservableProperty]
-    int favStatusIndex =1;
+    bool favStatus=false;
+    [ObservableProperty]
+    bool bookmrkStatus=false;
     [ObservableProperty]
     bool isLoadingJustForlooks;
     public void ViewSingleMeal()
     {
         if(CurrentUser.ListOfFavouriteMeals.Contains(SelectedMeal))
         {
-            FavStatusIndex = 0;
+            FavStatus = true;
         }
         if (CurrentPage == PageEnum.SingleMealPage)
         {
@@ -327,26 +337,25 @@ public partial class MealsViewModel : ObservableObject
 
     [ObservableProperty]
     string searchText;
-    bool GotResultInName;
 
     [RelayCommand]
     public void SearchMeal(string searText)
     {
-        var result = MealService.AllMeals
-    .Where(meal => !string.IsNullOrEmpty(meal.Name) && meal.Name.IndexOf(SearchText, StringComparison.OrdinalIgnoreCase) >= 0)
-    .ToList();
+    //    var result = MealService.AllMeals
+    //.Where(meal => !string.IsNullOrEmpty(meal.Name) && meal.Name.IndexOf(SearchText, StringComparison.OrdinalIgnoreCase) >= 0)
+    //.ToList();
 
-        if (result.Count<1)
-        {
-            GotResultInName = false;
-            AllMeals = MealService.AllMeals.ToObservableCollection();
-            return; 
-        }
-        else
-        {
-            GotResultInName = true;
-            AllMeals = result.ToObservableCollection();
-        }
+    //    if (result.Count<1)
+    //    {
+    //        GotResultInName = false;
+    //        AllMeals = MealService.AllMeals.ToObservableCollection();
+    //        return; 
+    //    }
+    //    else
+    //    {
+    //        GotResultInName = true;
+    //        AllMeals = result.ToObservableCollection();
+    //    }
     }
 
     [RelayCommand]

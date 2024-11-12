@@ -111,7 +111,7 @@ HeightRequest="400" WidthRequest="400">
                 </toolkit:AvatarView>
                 <Label Text="{Binding SelectedMeal.ImageUrl}"/>
                 <material:TextField Title="Image Url Instead" 
-                                    Text="{Binding NewImageUrl}"/>
+                                    Text="{Binding SelectedMeal.ImageUrl}"/>
                 <Button Text="GetImage" Command="{Binding GetImageCommand}"/>
                 
                 <Button Text="Delete" Command="{Binding DeleteMealCommand}"/>

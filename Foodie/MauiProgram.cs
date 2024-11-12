@@ -17,8 +17,13 @@ public static class MauiProgram
                 options.SetShouldSuppressExceptionsInConverters(true);            
 
             })
+            .UseDevExpressEditors()
+            .UseDevExpress(useLocalization: true)
+            .UseDevExpressCollectionView()
+            .UseDevExpressControls()
             .ConfigureSyncfusionToolkit()
             .UseMauiApp<App>()
+            .UseDevExpressGauges()
             .UseUraniumUI()
             .UseUraniumUIMaterial()
             .ConfigureFonts(fonts =>

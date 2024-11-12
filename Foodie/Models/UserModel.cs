@@ -10,7 +10,7 @@ public class UserModel :RealmObject
     [PrimaryKey]
     public ObjectId Id { get; set; } = ObjectId.GenerateNewId();
     public string Name { get; set; } = "User_" + ObjectId.GenerateNewId().ToString();
-    public DateTimeOffset DateCreated { get; set; } 
+    public DateTimeOffset DateCreated { get; set; } =DateTimeOffset.Now;
     public IList<MealModel> ListOfMeals { get; }
     public IList<MealModel> ListOfFavouriteMeals { get; }
     public IList<MealModel> ListOfBlackListedMeals { get; }
@@ -55,7 +55,7 @@ public partial class UserModelView :ObservableObject
     string name = "User_" + ObjectId.GenerateNewId().ToString();
 
     [ObservableProperty]
-    DateTimeOffset dateCreated;
+    DateTimeOffset dateCreated = DateTimeOffset.Now;
 
     [ObservableProperty]
     ObservableCollection<MealModelView> listOfMeals;
