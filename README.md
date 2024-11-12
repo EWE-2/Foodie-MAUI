@@ -39,8 +39,9 @@ To set up and run Foodie on your local machine, follow these steps:
 
 ## Screenshots
 
-![App Screenshot](link-to-screenshot1)
-![Recipe Screenshot](link-to-screenshot2)
+<img src="imgs/MobileDemo/homePagM.jpg" height=500>
+<img src="imgs/MobileDemo/sidePaneM.jpg" height=500>
+<img src="imgs/MobileDemo/singleMeal.jpg" height=500>
 
 ## Future Plans
 
