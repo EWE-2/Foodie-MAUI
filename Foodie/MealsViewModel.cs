@@ -53,6 +53,18 @@ public partial class MealsViewModel : ObservableObject
         AllMeals = MealService.AllMeals.ToObservableCollection();
         AllTags = MealService.AllTags.ToObservableCollection();
         CurrentUser = MealService.CurrentUser;
+        if (CurrentUser.ListOfFavouriteMeals is null)
+        {
+            CurrentUser.ListOfFavouriteMeals = new();
+        }
+        if (CurrentUser.ListOfMeals is null)
+        {
+            CurrentUser.ListOfMeals = new();
+        }
+        if (CurrentUser.ListOfBlackListedMeals is null)
+        {
+            CurrentUser.ListOfBlackListedMeals = new();
+        }
         GetAnyRandomFourMeals();
 
     }

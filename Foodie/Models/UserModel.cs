@@ -19,7 +19,6 @@ public class UserModel :RealmObject
         DateCreated = model.DateCreated;
         ListOfMeals = new List<MealModel>(model.ListOfMeals.Select(m => new MealModel(m)));
         ListOfFavouriteMeals = new List<MealModel>(model.ListOfFavouriteMeals.Select(m => new MealModel(m)));
-
         ListOfBlackListedMeals = new List<MealModel>(model.ListOfBlackListedMeals.Select(m => new MealModel(m)));
 
     }

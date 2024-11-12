@@ -13,14 +13,14 @@ xmlns:uranium="http://schemas.enisn-projects.io/dotnet/maui/uraniumui"
 xmlns:material="http://schemas.enisn-projects.io/dotnet/maui/uraniumui/material"
 x:DataType="vm:MealsViewModel"
 x:Name="myPage">
-    <toolkit:DockLayout>
+    <toolkit:DockLayout BackgroundColor="Black">
 
         <VerticalStackLayout toolkit:DockLayout.DockPosition="Top">
             <Label Text="Favorite Meals" FontSize="Large" TextColor="White" 
                    HorizontalOptions="Center" VerticalOptions="Center"/>
             <CollectionView ItemsSource="{Binding CurrentUser.ListOfFavouriteMeals}"
                 toolkit:DockLayout.DockPosition="Top"
-                EmptyView="No Meals So Far" Header="Latest Meals">
+                EmptyView="No Meals So Far">
                 <CollectionView.ItemsLayout>
                     <GridItemsLayout Span="2" Orientation="Vertical"
                    HorizontalItemSpacing="2" VerticalItemSpacing="2" />
