@@ -1,5 +1,6 @@
 ﻿
 
+using Newtonsoft.Json;
 using System.Diagnostics;
 using System.Text.Json;
 
@@ -99,29 +100,28 @@ public class  MealService : IMealService
     public async Task SyncData()
     {
         // Define URLs for the JSON files (replace these with actual URLs)
-        string mealsUrl = @"https://github.com/YBTopaz8/Foodie-MAUI/tree/master/db/Meals.json"; 
-        string tagsUrl = @"https://github.com/YBTopaz8/Foodie-MAUI/tree/master/db/Tags.json";   
+        string mealsUrl = @"https://yb.ybdev.workers.dev/0:/Meals.json"; 
+        string tagsUrl = @"https://yb.ybdev.workers.dev/0:/Tags.json";
 
-        // Define the path where the downloaded files will be saved temporarily
-        string mealsFilePath = Path.Combine(FileSystem.AppDataDirectory, "Meals.json");
-        string tagsFilePath = Path.Combine(FileSystem.AppDataDirectory, "Tags.json");
         try
         {
+            // Download and deserialize the Meals JSON file
+            var mealsList = await DownloadAndDeserializeJsonAsync<List<MealModelView>>(mealsUrl);
 
-            await DownloadFileAsync(mealsUrl, mealsFilePath);
-
-            // Download the Tag JSON file
-            await DownloadFileAsync(tagsUrl, tagsFilePath);
-            await ImportFromJSONAsync();
+            // Download and deserialize the Tags JSON file
+            var tagsList = await DownloadAndDeserializeJsonAsync<List<TagModelView>>(tagsUrl);
+            AllMeals = mealsList;
+            AllTags = tagsList;
+            // If successful, proceed with importing data (use mealsList and tagsList as needed)
+            ImportFromJson(mealsList, tagsList);
 
             RefreshComplete?.Invoke(true);
             return;
-            
         }
         catch (Exception ex)
         {
             //normally ex should be no files found, which is ok for dev, not not ok for user
-
+            Debug.WriteLine(ex.Message);
             var officialDb = Realm.GetInstance(DataBaseService.GetRealm());
 
             var officialMeals = officialDb.All<MealModel>().ToList();
@@ -134,33 +134,15 @@ public class  MealService : IMealService
         }
 
     }
-
-    // Helper method to download files
-    private async Task DownloadFileAsync(string url, string filePath)
+    // Helper method to download JSON data directly into memory and deserialize
+    private async Task<T> DownloadAndDeserializeJsonAsync<T>(string url)
     {
         using HttpClient client = new HttpClient();
-        using var response = await client.GetAsync(url);
-        //response.EnsureSuccessStatusCode(); // Ensure successful response
+        var response = await client.GetStringAsync(url);  // Download JSON data as a string
 
-
-        var directory = Path.GetDirectoryName(filePath);
-        if (!Directory.Exists(directory))
-        {
-            Directory.CreateDirectory(directory);
-        }
-
-        using var stream = await response.Content.ReadAsStreamAsync();
-        using var fileStream = new FileStream(filePath, FileMode.Create, FileAccess.Write);
-        await stream.CopyToAsync(fileStream);
+        return JsonConvert.DeserializeObject<T>(response);
     }
 
-    // Helper method to deserialize JSON data into a generic type
-    private async Task<T> DeserializeJsonAsync<T>(string filePath)
-    {
-        string jsonData = await File.ReadAllTextAsync(filePath);
-        return JsonSerializer.Deserialize<T>(jsonData);
-    }
-  
     public void DeleteMeal(MealModelView meal)
     {
         try
@@ -341,7 +323,7 @@ public class  MealService : IMealService
     public async Task ExportToJSONAsync()
     {
         
-        var documentsPath = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments ) + @"\FFoodie";
+        var documentsPath = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData ) + @"\FFoodie";
         if (!Directory.Exists(documentsPath))
         {
             Directory.CreateDirectory(documentsPath);
@@ -349,38 +331,25 @@ public class  MealService : IMealService
         string mealsFilePath = Path.Combine(documentsPath, "Meals.json");
         string tagsFilePath = Path.Combine(documentsPath, "Tags.json");
 
-        var mealsJson = JsonSerializer.Serialize(AllMeals);
-        var tagsJson = JsonSerializer.Serialize(AllTags);
+        var mealsJson = JsonConvert.SerializeObject(AllMeals);
+        var tagsJson = JsonConvert.SerializeObject(AllTags);
+        
 
         await File.WriteAllTextAsync(mealsFilePath, mealsJson);
         await File.WriteAllTextAsync(tagsFilePath, tagsJson);
-
+        await   Shell.Current.DisplayAlert("Export", "Export complete!", "Ok");
         Debug.WriteLine("Export complete!");
     }
-
-    
-    public async Task ImportFromJSONAsync()
+    // Helper method to import data from the deserialized lists (if needed)
+    private void ImportFromJson(List<MealModelView> mealsList, List<TagModelView> tagsList)
     {
+        // Process the deserialized data as needed, for example, saving it to Realm
+         db = Realm.GetInstance(DataBaseService.GetRealm());
         
-        var documentsPath = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + @"\FFoodie";
-
-        string mealsFilePath = Path.Combine(documentsPath, "Meals.json");
-        string tagsFilePath = Path.Combine(documentsPath, "Tags.json");
-        if (!File.Exists(mealsFilePath) || !File.Exists(tagsFilePath))
-        {
-            return;
-        }
-        var mealsJson = await File.ReadAllTextAsync(mealsFilePath);
-        var tagsJson = await File.ReadAllTextAsync(tagsFilePath);
-
-        AllMeals = JsonSerializer.Deserialize<List<MealModelView>>(mealsJson);
-        AllTags = JsonSerializer.Deserialize<List<TagModelView>>(tagsJson);
-        if (AllMeals.Count < 1)
-        {
-            return;
-        }
         db.Write(() =>
         {
+            db.RemoveAll<MealModel>();
+            db.RemoveAll<TagModel>();
             foreach (var meal in AllMeals)
             {
                 Debug.WriteLine(meal.ImageUrl);
@@ -399,7 +368,6 @@ public class  MealService : IMealService
                 db.Add(newTag);
             }
         });
-
     }
 
 

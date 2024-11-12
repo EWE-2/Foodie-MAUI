@@ -19,11 +19,11 @@ public partial class MealsViewModel : ObservableObject
     ObservableCollection<MealModelView> allMeals =new();
     [ObservableProperty]
     ObservableCollection<TagModelView> allTags =new();
-    
+
     [ObservableProperty]
-    TagModelView selectedTag=new();
+    TagModelView selectedTag;
     [ObservableProperty]
-    MealModelView selectedMeal=new();
+    MealModelView selectedMeal;
     [ObservableProperty]
     string mealSteps =string.Empty;
     [ObservableProperty]
@@ -66,7 +66,8 @@ public partial class MealsViewModel : ObservableObject
             CurrentUser.ListOfBlackListedMeals = new();
         }
         GetAnyRandomFourMeals();
-
+        SelectedMeal = null;
+        SelectedTag = null;
     }
 
     List<string> allMealsNames = new();

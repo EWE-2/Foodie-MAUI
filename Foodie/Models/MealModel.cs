@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
@@ -75,11 +76,27 @@ public class MealModel: RealmObject
         
     }
 }
+public class MealId
+{
+    public long Timestamp { get; set; }
+    public int Machine { get; set; }
+    public int Pid { get; set; }
+    public long Increment { get; set; }
+    public DateTime CreationTime { get; set; }
+    public MealId(ObjectId objectId)
+    {
+        Timestamp = objectId.Timestamp;
+        Machine = objectId.Machine;
+        Pid = objectId.Pid;
+        Increment = objectId.Increment;
+        CreationTime = objectId.CreationTime;
+    }
+}
+
 public partial class MealModelView : ObservableObject
 {
-    [PrimaryKey]
+    [JsonIgnore]
     public ObjectId Id { get; set; } 
-
     [ObservableProperty]
     string name;
     [ObservableProperty]
@@ -122,7 +139,7 @@ public partial class MealModelView : ObservableObject
     // Constructor for copying properties from an existing MealModel
     public MealModelView(MealModel source)
     {
-        Id = source.Id;
+        Id = source.Id ;
         Name = source.Name;
         ImageUrl = source.ImageUrl;
         
@@ -189,6 +206,7 @@ public class IngredientModel: EmbeddedObject
 
 public partial class TagModelView: ObservableObject
 {
+    [JsonIgnore]
     public ObjectId Id;
     [ObservableProperty]
     string tagName;
@@ -290,7 +308,8 @@ public partial class StepModelView : ObservableObject
 
 public partial class IngredientModelView : ObservableObject
 {
-    [PrimaryKey]
+
+    [JsonIgnore]
     public ObjectId Id { get; set; }
 
     [ObservableProperty]
@@ -366,4 +385,8 @@ public static class IngredientModelViewExtensions
     {
         return $"{ingredient.Quantity} {ingredient.Unit} {ingredient.Name}".Trim();
     }
+
+ 
 }
+
+
