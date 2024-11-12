@@ -92,6 +92,7 @@ public class  MealService : IMealService
     };
     private async Task SyncData()
     {
+        await DownloadDatabaseAsync();
         var officialDb = Realm.GetInstance(await DataBaseService.GetOfficialRealm());
 
         var officialMeals = officialDb.All<MealModel>().ToList();
@@ -141,7 +142,25 @@ public class  MealService : IMealService
 
         RefreshComplete?.Invoke(true);
     }
+    async Task DownloadDatabaseAsync()
+    {
+        string databaseUrl = "https://github.com/YBTopaz8/Foodie/raw/master/db/FoodieDB.realm";
+        string databaseFileName = "FoodieDB.realm";
+        string targetPath = Path.Combine(FileSystem.AppDataDirectory, databaseFileName);
 
+        using HttpClient client = new HttpClient();
+        using var response = await client.GetAsync(databaseUrl);
+        response.EnsureSuccessStatusCode(); // Check if the response is successful
+
+
+        if (File.Exists(targetPath))
+        {
+            File.Delete(targetPath);
+        }
+        using var stream = await response.Content.ReadAsStreamAsync();
+        using var fileStream = new FileStream(targetPath, FileMode.Create, FileAccess.Write);
+        await stream.CopyToAsync(fileStream);
+    }
     public void DeleteMeal(MealModelView meal)
     {
         try
