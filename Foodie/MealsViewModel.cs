@@ -13,7 +13,7 @@ public partial class MealsViewModel : ObservableObject
 {
     public PageEnum CurrentPage = PageEnum.HomePage;
     [ObservableProperty]
-    UserModelView currentUser;
+    UserModelView currentUser = new();
 
     [ObservableProperty]
     ObservableCollection<MealModelView> allMeals =new();
@@ -100,9 +100,17 @@ public partial class MealsViewModel : ObservableObject
         Debug.WriteLine("changed");
     }
 
+    [ObservableProperty]
+    bool isUpdatingImg = false;
     [RelayCommand]
     public async Task UpSertMeal(MealModelView? meal=null)
     {
+
+        if (IsUpdatingImg)
+        {
+            SelectedMeal.ImageUrl = NewImageUrl;
+        }
+
         if (meal is null)
         {
             meal = SelectedMeal;
@@ -116,6 +124,7 @@ public partial class MealsViewModel : ObservableObject
         ProcessMealSteps();
 
         await ParseAndSaveIngredients();
+
         MealService.UpdateMeal(meal);
         var existingMealIndex = AllMeals.IndexOf(AllMeals.FirstOrDefault(x => x.Id == meal.Id));
         if (existingMealIndex != -1)
