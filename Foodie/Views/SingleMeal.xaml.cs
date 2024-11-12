@@ -38,7 +38,10 @@ public partial class SingleMeal : ContentPage
 
     private void TapGestureRecognizer_Tapped(object sender, TappedEventArgs e)
     {
-        Launcher.OpenAsync(new Uri(ViewModel.SelectedMeal.OriginalArticleUrl));
+        if (!string.IsNullOrEmpty(ViewModel.SelectedMeal.OriginalArticleUrl))
+        {
+            Launcher.OpenAsync(new Uri(ViewModel.SelectedMeal.OriginalArticleUrl));
+        }
     }
 
     private void FavsChipGroup_SelectionChanged(object sender, Syncfusion.Maui.Toolkit.Chips.SelectionChangedEventArgs e)
