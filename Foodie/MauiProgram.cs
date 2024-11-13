@@ -12,9 +12,9 @@ public static class MauiProgram
             .UseMauiCommunityToolkit(options =>
             {
 
-                options.SetShouldSuppressExceptionsInAnimations(true);
-                options.SetShouldSuppressExceptionsInBehaviors(true);
-                options.SetShouldSuppressExceptionsInConverters(true);            
+                //options.SetShouldSuppressExceptionsInAnimations(true);
+                //options.SetShouldSuppressExceptionsInBehaviors(true);
+                //options.SetShouldSuppressExceptionsInConverters(true);            
 
             })
             .ConfigureSyncfusionToolkit()

@@ -39,6 +39,7 @@
         </syncf:SfNavigationDrawer.DrawerSettings>
         
         <syncf:SfNavigationDrawer.ContentView>
+            
             <toolkit:DockLayout Margin="10" VerticalSpacing="5">
                 <HorizontalStackLayout toolkit:DockLayout.DockPosition="Top" HorizontalOptions="Center"
                                        Spacing="10">
